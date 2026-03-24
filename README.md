@@ -11,7 +11,7 @@ Copy `CLAUDE.md` to `~/.claude/CLAUDE.md` (your global Claude Code instructions)
 
 ### Full: Adopt the whole workflow
 ```bash
-git clone <this-repo> /tmp/claude-workflow
+git clone https://github.com/griffinhilly/claude-code-synthesis /tmp/claude-workflow
 
 # Copy the operating model
 cp /tmp/claude-workflow/CLAUDE.md ~/.claude/CLAUDE.md
