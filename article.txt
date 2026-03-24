@@ -1,0 +1,81 @@
+The Claude Code setup to rule them all.
+
+You've seen the X articles.
+
+Maybe you've downloaded Claude Code but you weren't sure where to get started.
+
+You saw @Karpathy's post about auto-research but you're not sure if you have any interesting things to research.
+
+You saw a bunch of tweets about things to add to your CLAUDE.md, but then you saw another saying your CLAUDE.md was too long and should be cut down to basics.
+
+You're lost and you don't know what to do.
+
+This is the tweet for you.
+
+I've read all those tweets for you. Or more accurately, I've read some of them and my Claude has read them all. And my Claude distilled all of that into a single, simplified workflow that you can copy for yourself.
+
+Just clone this repository and you're good to go: https://github.com/griffinhilly/claude-code-synthesis
+
+Alternatively you can have your Claude do it for you.
+
+Every week I download all the bookmarks I've saved and have my Claude read them. We consider adding anything we don't have already in our workflow. Your Claude can do the same.
+
+Here's what Claude and I have found:
+
+The Operating Model (CLAUDE.md)
+
+The single most important file. Copy it to ~/.claude/CLAUDE.md and it changes how Claude approaches every task. Here's what's in it:
+
+Leverage Doctrine. You do the thinking. Claude does the doing. You ideate, decide, and steer. Claude researches, implements, and executes. When uncertain, it surfaces options with tradeoffs instead of deciding silently.
+
+Plan-First Protocol. Every task starts with: what's the objective? How will we know it worked? What are the sub-tasks? Research agents plan, implementation agents execute. Never both.
+
+Scope Discipline. Claude pushes back on ambitious plans. "This is a 3-session project. Want to start with just X?" A working smaller thing beats a half-finished grand vision.
+
+Orchestrator-First. The session agent is a manager, not a worker. Before any task, it decides: handle directly, delegate to a subagent, or route to MCP? This is the single biggest lever for productivity.
+
+Dialectic Reviews. For important decisions, don't ask "what should I do?" Spawn opposing agents — one argues FOR, one argues AGAINST — with a referee to synthesize. Dramatically better than asking one agent for pros and cons. (h/t @danpeguine and @systematicls for the Hunter/Skeptic/Referee pattern)
+
+Anti-Sycophancy. If an approach has clear problems, Claude says so directly, proposes an alternative, and accepts override. Sycophancy is a failure mode.
+
+Test-First Bug Fixing. When a bug is reported, write a test that reproduces it before trying to fix it. (h/t @tangming2005 — this was his "single biggest improvement to my CLAUDE.md")
+
+Operationalize Every Fix. Don't just fix the bug. Write tests that catch the whole class of similar bugs. Check for other instances. If it reveals a gap in your instructions, update CLAUDE.md. Every bug is a learning opportunity. (h/t @doodlestein)
+
+Evals Before Specs. Define how you'll evaluate success before writing the spec. The progression: evals → spec → plan → implement → verify. (h/t @synopsi, who now spends 90% of time on evals)
+
+Prefer the Boring Solution. Can this be fewer lines? Are abstractions earning their complexity? Don't build 1,000 lines when 100 suffice. (h/t @karpathy — "agents bloat abstractions, have poor code aesthetics")
+
+Progressive Disclosure. Don't dump everything into CLAUDE.md. Keep it lean with trigger rules ("when X happens, read guide Y"). Guides load on-demand. (h/t @toddsaunders and @mstockton)
+
+Structured > Prose. For rules agents MUST follow, use XML tags and JSON, not markdown paragraphs. Claude processes tagged content differently. (h/t @ihtesham2005 and @Austen)
+
+Workflow Evolution. The workflow is a living system. When a session reveals a new pattern, encode it. Use your tools to improve your tools. It's a flywheel, not a static config. (h/t @doodlestein's Agent Flywheel)
+
+After-Action Reviews. After finishing a project or phase, run a structured reflection: what worked, what didn't, root causes, tensions. Cite specific files and commits — no generic platitudes. Distill into 3-6 concrete lessons. Maintain a cumulative best-practices doc that deduplicates and tracks how many times a lesson has been independently rediscovered. Contradictions get flagged, not silently overwritten. (h/t Emmet's Ignatius skill, built on the Ignatian Pedagogical Paradigm)
+
+Corrective Framing. "Remember to do X" doesn't work. Instead, present a possibly-wrong claim: "You should be doing X — are you still doing it?" Mismatches trigger natural correction. (h/t @yishan)
+
+The COMP System
+
+Every project gets 4 files:
+- CLAUDE.md — how the AI should behave here
+- ORIENT.md — what a human needs to know to work here
+- MEMORY.md — accumulated decisions, gotchas, context
+- PLAN.md — roadmap, progress, next steps
+
+Separate behavioral instructions from human orientation from accumulated knowledge from direction. Each has a different audience and update frequency.
+
+The Guides
+
+Seven situational guides that Claude loads on-demand — delegation templates (7 agent types with prompt structures), shell rules, context efficiency, API-over-scraping, PostgreSQL batching, overnight autonomous runs, and a skills reference.
+
+The delegation templates alone are worth the clone. Implementer, Researcher, Reviewer, Batch Worker, Session Reviewer, Explorer, Creative — each with a prompt template, model recommendation, and mandatory report format.
+
+The Bookmark Pipeline
+
+This is the meta-move. Every week I download my Twitter bookmarks as HAR files, run them through a pipeline that extracts, categorizes, and embeds them, and then semantic search over the whole archive.
+
+That's how I found every source cited above. `python search.py "agent orchestration pattern" --top-k 5` and there they are. The repo includes a full guide on how to set this up yourself. Total cost: ~$1-3 in API credits for ~2,000 bookmarks.
+
+Your bookmarks are a curated signal of what you found valuable. This pipeline turns that into a searchable knowledge base.

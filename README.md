@@ -171,6 +171,10 @@ This workflow didn't emerge in a vacuum. Most of the ideas here were shaped by t
 
 - **@doodlestein** — Their extensive work on the ["Agent Flywheel"](https://x.com/doodlestein/status/2036280197851320530) system — using skills to communicate complex instructions with economy of expression, and the self-referential loop of using tools to improve tools — is the foundational influence on the Workflow Evolution section. Their observation that "skills are a LOT more than just markdown files" captures why this repo treats skills as first-class workflow primitives.
 
+### After-Action Reviews & Cumulative Learning
+
+- **Emmet Penney** ([@NukeBarbarian](https://x.com/NukeBarbarian)) — His Ignatius skill, built on the Ignatian Pedagogical Paradigm (Context → Experience → Reflection → Action → Evaluation), directly shaped the after-action review process and cumulative best-practices pattern in Workflow Evolution. The key ideas: interactive reflection with the human (not just automated analysis), deduplication with reinforcement counting across projects, and contradiction detection when new lessons conflict with existing ones.
+
 ### Premortem & Decision-Making
 
 - **Gary Klein** — The premortem technique (imagine the project has failed, work backwards to identify why) is from Klein's research on naturalistic decision-making, popularized by Daniel Kahneman in *Thinking, Fast and Slow*. The dialectic `--premortem` mode adapts this for AI-assisted decisions.
