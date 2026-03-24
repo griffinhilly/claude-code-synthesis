@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Data files (too large for git — keep locally)
+*.csv
+*.json
+!shared/*.py
+*.npz
+*.har
+
+# Media
+media/*
+!media/.gitkeep
+
+# Data
+data/*
+!data/.gitkeep
+
+# Environment
+.env
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/
