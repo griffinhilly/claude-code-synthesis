@@ -68,7 +68,7 @@ Separate behavioral instructions from human orientation from accumulated knowled
 
 The Guides
 
-Seven situational guides that Claude loads on-demand — delegation templates (7 agent types with prompt structures), shell rules, context efficiency, API-over-scraping, PostgreSQL batching, overnight autonomous runs, and a skills reference.
+Eleven situational guides that Claude loads on-demand — delegation templates (7 agent types with prompt structures), shell rules, context efficiency, API-over-scraping, PostgreSQL batching, overnight autonomous runs, and a skills reference.
 
 The delegation templates alone are worth the clone. Implementer, Researcher, Reviewer, Batch Worker, Session Reviewer, Explorer, Creative — each with a prompt template, model recommendation, and mandatory report format.
 

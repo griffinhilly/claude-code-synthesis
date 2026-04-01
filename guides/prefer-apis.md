@@ -13,6 +13,6 @@ Browser automation is fragile:
 ## Checklist
 
 1. Check if the site has a public API or data export
-2. Check if there's a Python package wrapping the API (e.g., `nba_api`, `tweepy`, `stripe`)
+2. Check if there's a Python package wrapping the API (e.g., `tweepy`, `stripe`, `praw`)
 3. Check if the data is available as a static file (CSV, JSON, RSS)
 4. Only use Playwright/Selenium as a **last resort** after confirming no API exists
