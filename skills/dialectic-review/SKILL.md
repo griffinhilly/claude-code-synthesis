@@ -3,7 +3,7 @@ name: dialectic-review
 description: Dialectic process for reviewing, brainstorming, comparing tradeoffs, or stress-testing plans. Configurable modes, agent counts, and expert lenses.
 user-invocable: true
 disable-model-invocation: false
-argument-hint: [--mode review|ideate|tradeoff|premortem] [--agents X-Y-Z] [--lens <expert>] [--test-first] [focus area]
+argument-hint: [--mode review|ideate|tradeoff|premortem] [--agents X-Y-Z] [--lens <expert>] [--test-first] [--audit] [focus area]
 ---
 
 # Dialectic Review
@@ -32,6 +32,9 @@ Parse `$ARGUMENTS` for these flags (order-independent, all optional):
 | `--agents X-Y-Z` | Agent counts per phase | Mode-dependent (see table) |
 | `--lens <expert>` | Expert perspective (e.g., `security`, `performance`, `UX`) | none (generalist) |
 | `--test-first` | Phase 2 writes failing tests instead of prose (review mode only) | off |
+| `--audit` | Add Phase 4: hostile auditor attacks the synthesis itself | off |
+
+**Recommended `--lens` values**: `security`, `performance`, `UX`, `data-integrity`, `cost`, `temporal` (timeline/sequencing risks), `user-advocate` (end-user empathy), `scalability`
 
 Everything not matching a flag is the **focus area**.
 
@@ -82,4 +85,43 @@ Follow the three-phase process defined in that file. Each file defines the role 
 - Launch each phase's agents in parallel using the Agent tool.
 - Use **Opus** for referees/synthesizers/risk-assessors (judgment-heavy). Use **Sonnet** for other roles.
 - If multiple agents in the same phase, merge outputs — deduplicate overlapping points, keep the strongest version, note disagreements.
-- After the final phase, present a concise summary. Do NOT ask the user if they want to proceed — just present findings.
+- After the final phase, present a concise summary. Do NOT ask the user if they want to proceed -- just present findings.
+- If `--audit` is set, run the Hostile Auditor phase (see below) AFTER the normal summary.
+
+## Phase 4: Hostile Auditor (when `--audit` is set)
+
+After the three-phase process completes its synthesis, launch a single Opus agent that attacks the synthesis itself. This closes the gap where the review process never stress-tests its own conclusion.
+
+```
+You are a HOSTILE AUDITOR. You will receive a synthesis/conclusion produced by a multi-agent review process. Your job is to ATTACK IT.
+
+CONTEXT ISOLATION: You receive ONLY the information below. You were not part of the prior process and owe it no deference.
+
+THE SYNTHESIS TO ATTACK:
+[Full output from Phase 3]
+
+ORIGINAL SUBJECT:
+[Subject description and file paths]
+
+YOUR TASK:
+1. What did the synthesis get WRONG? Where did it paper over disagreements with false compromise?
+2. What did the entire process MISS? What questions were never asked? What assumptions went unchallenged?
+3. Where is the synthesis WEAKEST? If you had to bet against one conclusion, which one and why?
+4. What's the STRONGEST argument against the synthesis's main recommendation?
+
+Be maximally adversarial. The synthesis has already been through three phases of review — easy criticisms were already caught. Your job is to find what survived.
+
+Format:
+- ERRORS: Things the synthesis got wrong
+- BLIND SPOTS: Questions never asked
+- WEAKEST POINT: Where to bet against
+- COUNTER-ARGUMENT: The strongest case against the main recommendation
+- VERDICT: Is this synthesis trustworthy enough to act on? (YES WITH CAVEATS / NO — REDO / YES)
+```
+
+Present the auditor's findings after the main summary, clearly labeled as "Hostile Audit." If the auditor's verdict is "NO -- REDO," flag this prominently.
+
+### Sources
+
+- [KyleAMathews/hegelian-dialectic-skill](https://github.com/KyleAMathews/hegelian-dialectic-skill) -- hostile auditor concept (Phase 6 validation)
+- [Riley-Coyote/polyclaude](https://github.com/Riley-Coyote/polyclaude) -- temporal and user-advocate perspective lenses

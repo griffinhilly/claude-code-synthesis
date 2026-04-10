@@ -1,6 +1,6 @@
 # Claude Code Workflow
 
-A complete, opinionated Claude Code workflow. 18 skills, 6 hooks, 11 guides, and an operating model you can install in one command.
+A complete, opinionated Claude Code workflow. 19 skills, 7 hooks, 13 guides, and an operating model you can install in one command.
 
 **This isn't a tutorial or a library.** It's a working configuration -- built over months of daily use -- that you can copy into your own setup and adapt.
 
@@ -8,8 +8,8 @@ A complete, opinionated Claude Code workflow. 18 skills, 6 hooks, 11 guides, and
 
 v1 shipped the operating model (`CLAUDE.md`) and a handful of guides. v2 ships the full working system:
 
-- **18 skills** -- slash commands covering the entire session lifecycle, from planning through implementation to session close
-- **6 hooks** -- PreToolUse and PostCompact hooks for security, observability, and context recovery
+- **19 skills** -- slash commands covering the entire session lifecycle, from planning through implementation to session close
+- **7 hooks** -- PreToolUse and PostCompact hooks for security, observability, context recovery, and epistemic guardrails
 - **2 tools** -- Python utilities for cross-session search and skill usage analytics
 - **3 new guides** -- pipeline diagnostics, learning from reference repos, and a deep comparison of Superpowers / gstack / Compound Engineering
 - **Updated CLAUDE.md** -- 10+ new behavioral rules including structured debugging, subagent validation, confidence-scored planning, three-fix escalation, and knowledge compounding
@@ -52,9 +52,9 @@ Tell Claude Code: *"Clone https://github.com/griffinhilly/claude-code-synthesis 
 
 The behavioral contract that governs every session. Defines leverage doctrine (human decides, Claude executes), plan-first protocol, scope discipline, agent principles, dialectic reviews, implementation behavior, security safeguards, the COMP documentation system, and workflow evolution rules. See the [Key Ideas](#key-ideas-worth-highlighting) section below for highlights.
 
-### `skills/` -- 18 Slash Commands
+### `skills/` -- 19 Slash Commands
 
-Skills are `.claude/commands/` files that encode multi-step workflows as single invocations. They range from lightweight wrappers (brainstorm, premortem) to complex multi-agent protocols (dialectic-review, debug).
+Skills are `.claude/commands/` files that encode multi-step workflows as single invocations. They range from lightweight wrappers (brainstorm, premortem) to complex multi-agent protocols (dialectic-review, debug, bug-hunt).
 
 | Skill | What It Does |
 |-------|-------------|
@@ -70,7 +70,8 @@ Skills are `.claude/commands/` files that encode multi-step workflows as single 
 | `/wrapup` | Full session closer: COMP updates + skill health check + bloat audit + session summary. |
 | `/retro` | Periodic retrospective. Scopes: session, weekly, or project. Turns patterns into rules. |
 | `/learn` | Capture structured learnings (gotcha, pattern, decision, bug-fix) as JSONL. Cross-project searchable. |
-| `/dialectic-review` | Multi-agent adversarial analysis. 4 modes: review, ideate, tradeoff, premortem. Configurable agents and expert lenses. |
+| `/dialectic-review` | Multi-agent adversarial analysis. 4 modes: review, ideate, tradeoff, premortem. Configurable agents, expert lenses, and optional hostile auditor (`--audit`). |
+| `/bug-hunt` | Three-agent adversarial bug-finding. Hunter overclaims, Skeptic disproves, Referee arbitrates. Asymmetric scoring forces distinct agent behaviors. |
 | `/brainstorm` | Dialectic ideation. Wrapper for `/dialectic-review --ideate`. |
 | `/premortem` | Assume failure, find the causes. Wrapper for `/dialectic-review --premortem`. |
 | `/red-team` | Adversarial stress-testing of code, plans, or arguments. Wrapper for `/dialectic-review`. |
@@ -100,8 +101,9 @@ Commands are user-invocable slash commands that handle session lifecycle and pro
 | `check-staged-secrets.sh` | PreToolUse (Bash) | Scans staged files for credentials before `git commit` |
 | `block-secret-bash.sh` | PreToolUse (Bash) | Blocks `cat`, `head`, `tail` on known secret file patterns |
 | `block-secret-reads.sh` | PreToolUse (Read) | Blocks the Read tool on `.env`, credential, and key files |
-| `log-skill-usage.sh` | PreToolUse (Bash) | Tracks skill invocations to a log file for usage analytics |
-| `post-compact-reminder.sh` | PostCompact | Re-injects session context after conversation compaction |
+| `log-skill-usage.sh` | PreToolUse (Skill) | Tracks skill invocations with session IDs to a log file for usage analytics |
+| `post-compact-reminder.sh` | PostCompact | Re-injects session context and Decision Quality Gates after compaction |
+| `epistemic-guard.sh` | PreToolUse (Write/Edit) | Warns when content contains unverified epistemic claims ("should work", "probably fine") |
 
 ### `tools/` -- 2 Python Utilities
 
@@ -110,7 +112,7 @@ Commands are user-invocable slash commands that handle session lifecycle and pro
 | `session-search.py` | Cross-session keyword search over conversation history. Supports `--project`, `--days`, `--role`, `--max` filters. |
 | `skill-usage-report.py` | Skill usage analytics: invocation counts, trends, dead skill detection. Reads the log produced by `log-skill-usage.sh`. |
 
-### `guides/` -- 11 On-Demand Reference Docs
+### `guides/` -- 13 On-Demand Reference Docs
 
 Guides load on-demand when triggered by specific situations. This keeps `CLAUDE.md` lean while making deep knowledge available when needed.
 
@@ -127,6 +129,8 @@ Guides load on-demand when triggered by specific situations. This keeps `CLAUDE.
 | `shell-rules.md` | Shell command conventions (flag quoting, HEREDOCs) |
 | `prefer-apis.md` | Fetching data from websites (API over scraping) |
 | `postgres-batching.md` | Exploratory database queries needing repeated approval |
+| `claude-code-features.md` | Underutilized native features (`--bare`, `/batch`, `--add-dir`, session forking) |
+| `event-driven-agents.md` | Bash pre-check gates, event-driven agent invocation, autonomous loop safety |
 
 ### `examples/data-pipeline/` -- Working Example
 
@@ -227,7 +231,10 @@ For the full mapping of what was adopted from each framework, what was skipped, 
 
 - **@tangming2005** -- Their post about the ["single biggest improvement to my CLAUDE.md"](https://x.com/tangming2005/status/2031358195558658266) -- writing a reproduction test before fixing -- is almost verbatim the test-first bug fixing rule.
 - **@doodlestein** -- Their ["Agent Coding Life Hack"](https://x.com/doodlestein/status/2036236834507047288) is the direct source of "operationalize every fix." Their broader work on the ["virtuous circle"](https://x.com/doodlestein/status/2035479010147242046) shaped the Workflow Evolution section.
-- **@danpeguine** -- Their implementation of [@systematicls's method](https://x.com/danpeguine/status/2029268229030285589) using Hunter, Skeptic, and Referee agents was the direct inspiration for the dialectic review pattern.
+- **@danpeguine** -- Their implementation of [@systematicls's method](https://x.com/danpeguine/status/2029268229030285589) using Hunter, Skeptic, and Referee agents was the direct inspiration for the dialectic review pattern and the `/bug-hunt` skill.
+- **Kyle Mathews** ([@kylemathews](https://x.com/kylemathews)) -- His [Hegelian dialectic skill](https://github.com/KyleAMathews/hegelian-dialectic-skill) with its hostile auditor phase (Phase 6 validation) inspired the `--audit` flag in `/dialectic-review`.
+- **Riley Ralmuto** ([@RileyRalmuto](https://x.com/RileyRalmuto)) -- Their [polyclaude plugin](https://github.com/Riley-Coyote/polyclaude) with 6 named perspectives (including Temporal and User Advocate) informed the recommended `--lens` values.
+- **Danielle Fong** ([@DanielleFong](https://x.com/DanielleFong)) -- Her concept of an [epistemic claims hook](https://x.com/DanielleFong/status/2038061587752505711) that catches unverified assertions inspired `epistemic-guard.sh`.
 
 ### Plan-First and Scope Discipline
 
@@ -252,6 +259,8 @@ For the full mapping of what was adopted from each framework, what was skipped, 
 - **@witcheer** -- Their post about [running autoresearch overnight](https://x.com/witcheer/status/2030900817700565394) ("9PM to 6AM, 35 experiments, zero intervention") was the direct inspiration for the overnight runner.
 - **@archiexzzz** -- Their [deep dive into autoresearch](https://x.com/archiexzzz/status/2033034161611817300) informed the batch mode vs resume mode distinction.
 - **Anthropic's scheduled tasks** ([@trq212](https://x.com/trq212/status/2030019397335843288)) -- The official feature handles the simple case; the overnight runner handles usage limit retries, batch checkpointing, and multi-session resume.
+- **@elvissun** -- Their [bash pre-check gate pattern](https://x.com/elvissun/status/2028671336219107687) (bash checks preconditions, only invokes the LLM when action is needed) achieving ~95% token reduction directly shaped `guides/event-driven-agents.md`.
+- **@affaan-m** -- Their [everything-claude-code](https://github.com/affaan-m/everything-claude-code) repo (27 agents, 64 skills) contributed the loop-operator stall detection pattern documented in the event-driven agents guide.
 
 ### Evals-First, Agent Steering, and Skill Design
 

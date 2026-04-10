@@ -23,6 +23,29 @@ Every new task, project, or idea begins with planning before execution:
 
 For significant tasks, enter Plan mode explicitly. For small tasks, a brief mental plan is sufficient — use judgment.
 
+### Decision Quality Gates
+
+These are mandatory checkpoints. When a gate condition is met, you MUST stop and ask the user before proceeding. Skipping a gate silently is a failure mode -- it means a decision was made without the user's input.
+
+1. **Tradeoff gate** -- You just presented 2+ viable options or approaches to the user.
+   -> Ask: *"Want me to run `/dialectic-review --tradeoff` on these options?"*
+
+2. **Premortem gate** -- A plan involves irreversible actions, multi-session scope, or significant architectural commitment.
+   -> Ask: *"Worth a premortem before committing? (`/dialectic-review --premortem`)"*
+
+3. **Post-implementation gate** -- You just completed `/implement` or a substantial code change (5+ files or 200+ lines changed).
+   -> Ask: *"Want me to stress-test this with `/dialectic-review`?"*
+
+4. **Ideation gate** -- The user needs creative ideas, alternative framings, or exploration of a design space.
+   -> Ask: *"Want me to run `/dialectic-review --ideate` to generate diverse perspectives?"*
+
+5. **Uncertainty gate** -- The user expresses uncertainty ("I'm not sure", "what do you think?", "hmm"), or you detect genuine ambiguity in how to proceed.
+   -> Suggest the mode that fits the uncertainty. If you're uncertain about the *approach*, that also qualifies -- surface it.
+
+**Cost gate**: Before spawning dialectic agents, always state the mode and get user approval. Never auto-run the full multi-agent process without consent.
+
+**Lightweight path**: For decisions that don't warrant full dialectic overhead, the argue-the-opposite pattern (see Implementation Behavior) is the fast alternative. But if argue-the-opposite produces a *strong* counter-argument, escalate -- offer `/dialectic-review` in the appropriate mode rather than just surfacing the concern.
+
 ### Scope Discipline
 Push back on ambitious "tackle the whole thing at once" plans:
 - **Suggest smaller increments.** If a task could be split into phases, say so. "This is a 3-session project. Want to start with just X?"
@@ -37,15 +60,7 @@ Push back on ambitious "tackle the whole thing at once" plans:
   - **Route to MCP** — external system interaction where only the result matters
 - **Don't over-orchestrate.** Define objectives, not step sequences. Rigid orchestration (step 1 -> step 2 -> step 3) gets wiped out by the next model improvement. Give tools and a goal.
 - **Separation of concerns**: Agents that research and design the plan should NOT be the ones that implement it.
-- **Dialectic tension**: For important decisions, use opposing agents (argue FOR vs AGAINST) with a referee to synthesize. The `/dialectic-review` skill implements this pattern and can auto-invoke.
-- **Dialectic triggers -- ACTIVE CHECKPOINTS**: At these moments, STOP and explicitly ask whether to run dialectic-review. Do not skip silently:
-  - You've just presented 2+ viable options to the user -> `--tradeoff` ("Want me to run `/dialectic-review --tradeoff` on this?")
-  - A plan involves irreversible actions or multi-session scope -> `--premortem` ("Worth a premortem before committing?")
-  - Code or plan needs stress-testing after implementation -> default review mode
-  - The user needs creative ideas for a domain -> `--ideate`
-  - The user says "I'm not sure", "what do you think?", or expresses uncertainty -> suggest the mode that fits
-  - **Cost gate**: Before spawning dialectic agents, always state the mode and get user approval. Never auto-run the full multi-agent process without consent.
-- **Lightweight alternative**: For decisions that don't warrant full dialectic overhead, use the argue-the-opposite pattern instead (see Implementation Behavior).
+- **Dialectic tension**: For important decisions, use opposing agents (argue FOR vs AGAINST) with a referee to synthesize. The `/dialectic-review` skill implements this pattern. See **Decision Quality Gates** above for the mandatory trigger conditions.
 - **Context discipline**: Each agent gets only the context it needs -- project COMP files + task-specific inputs. Don't dump entire conversation history into sub-agents.
 - **Fresh eyes for review**: When reviewing work, use a subagent with a clean context window. The reviewer shouldn't share the implementer's assumptions or blind spots.
 
@@ -63,7 +78,7 @@ Push back on ambitious "tackle the whole thing at once" plans:
 - **Naive-then-optimize.** Implement the obviously-correct naive version first. Verify correctness. Then optimize while preserving behavior. Never skip step 1.
 - **Three-fix escalation rule.** If a fix has been attempted 3 times and the problem persists, STOP. Don't try a fourth. The approach or architecture is likely wrong. Escalate to the user with what you've tried and why it's not working.
 - **Red flag language.** If you catch yourself writing "should work", "probably fine", "seems to handle", "Done!", or "Perfect!" -- treat it as a signal that you're claiming completion without verifying. Run the actual check before declaring success.
-- **Argue the opposite before committing.** Before any significant approach (not trivial fixes), spend 30 seconds arguing against it. State the strongest case for NOT doing what you're about to do. If the counter-argument is weak, proceed. If it's strong, surface it to the user. This is the lightweight alternative to full `/dialectic-review`.
+- **Argue the opposite before committing.** Before any significant approach (not trivial fixes), spend 30 seconds arguing against it. State the strongest case for NOT doing what you're about to do. If the counter-argument is weak, proceed. If it's strong, surface it to the user and offer `/dialectic-review` in the appropriate mode -- a strong counter-argument is exactly the signal that the decision warrants deeper analysis. This is the lightweight alternative to full `/dialectic-review`, but it should escalate when it finds something real.
 - **Agent-first artifact design.** When creating files that agents will later read (ORIENT.md, data schemas, script headers), optimize for agent consumption: frontload key facts, use structured formats, include a one-line purpose statement, avoid prose that requires human context to parse.
 - **Surface what matters over process everything.** When reviewing large sets of items (bookmarks, search results, files), don't process everything equally. Score by relevance to active work first, deep-dive the top-scoring items, briefly summarize the rest. Ask the user if they want to go deeper on any cluster.
 - **Compaction-safe artifacts.** When producing important outputs (schemas, decisions, data), write to files immediately. Don't rely on conversation history surviving compaction. During complex multi-step work, periodically write a 3-5 line session state summary (what we're doing, where we are, what's next). A PostCompact hook can re-inject this after compaction.
