@@ -31,7 +31,7 @@ Determine the verification type from context:
 
 ### Step 2: Run Checks
 
-Read the relevant files and run checks appropriate to the type. See `check-types.md` for detailed checklists by verification type.
+Read the relevant files and run checks appropriate to the type. See @check-types.md for the four composable check categories (data, completeness, consistency, assumption). A single verification usually draws from multiple categories — e.g., a data pipeline verification runs data + completeness + consistency.
 
 ### Step 3: Report
 
@@ -56,7 +56,7 @@ If everything passes, say so concisely. Don't pad the report.
 
 ### Step 4: When Verification Fails — Debug Protocol
 
-If Step 3 reports FAILED items, do not jump to fixing. See `debug-protocol.md` for the full 4-phase protocol.
+If Step 3 reports FAILED items, do not jump to fixing. See @debug-protocol.md for the full 4-phase protocol.
 
 ## Red Flag Language (from Superpowers)
 If you catch yourself or a subagent using any of these phrases, STOP and re-verify:

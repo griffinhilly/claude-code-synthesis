@@ -1,6 +1,6 @@
 ---
 name: bug-hunt
-description: Three-agent adversarial bug-finding harness. Hunter overclaims, Skeptic disproves, Referee arbitrates. Based on danpeguine/systematicls method.
+description: Three-agent adversarial bug finder. Hunter overclaims every issue it can find, Skeptic disproves what it can, Referee arbitrates what survives. Scoring incentives force each role to behave honestly.
 user-invocable: true
 disable-model-invocation: false
 argument-hint: [--lens <expert>] [target files or description]

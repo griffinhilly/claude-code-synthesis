@@ -45,7 +45,7 @@ Work through the plan's sub-tasks in order:
 - For each sub-task, verify completion before moving to the next dependent task
 - If a sub-task fails or hits an unexpected issue, STOP and report to the user rather than improvising a workaround
 
-After each subagent returns, validate the report. See `subagent-validation.md` for the full protocol.
+After each subagent returns, validate the report. See @subagent-validation.md for the full protocol.
 
 ### Step 4: Verify Success
 Check the plan's success criteria:
@@ -55,6 +55,6 @@ Check the plan's success criteria:
 
 Report results to the user.
 
-See `rules.md` for implementation guardrails.
+See @rules.md for implementation guardrails.
 
 After implementation completes, `/verify` is mandatory -- not optional. The `/wrapup` health check will flag sessions where `/implement` ran without `/verify`.

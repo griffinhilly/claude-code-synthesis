@@ -16,8 +16,10 @@ A multi-agent dialectic with four modes. The primitive is always the same: **str
 |------|-------|---------|---------|---------|---------------|--------|
 | `review` | `/red-team` | Critics attack | Defenders rebut | Referees judge | 3-1-1 | 1 |
 | `ideate` | `/brainstorm` | Generators create | Challengers prune | Synthesizers rank | 5-2-3 | 1 (future: multi-round) |
-| `tradeoff` | — | Advocates (1 per option) | Counter-advocates challenge | Referees rank | N-N-1 | 1 |
-| `premortem` | — | Pessimists explain failure | Optimists argue success | Risk assessors weigh | 3-2-1 | 1 |
+| `tradeoff` | `/tradeoff` | Advocates (1 per option) | Counter-advocates challenge | Referees rank | N-N-1 | 1 |
+| `premortem` | `/premortem` | Pessimists explain failure | Optimists argue success | Risk assessors weigh | 3-2-1 | 1 |
+
+Note: `/red-team` enables `--audit` by default (adds Phase 4 hostile auditor). Pass `--no-audit` to run plain review mode.
 
 ## Argument Parsing
 
@@ -32,7 +34,8 @@ Parse `$ARGUMENTS` for these flags (order-independent, all optional):
 | `--agents X-Y-Z` | Agent counts per phase | Mode-dependent (see table) |
 | `--lens <expert>` | Expert perspective (e.g., `security`, `performance`, `UX`) | none (generalist) |
 | `--test-first` | Phase 2 writes failing tests instead of prose (review mode only) | off |
-| `--audit` | Add Phase 4: hostile auditor attacks the synthesis itself | off |
+| `--audit` | Add Phase 4: hostile auditor attacks the synthesis itself | off (but on by default when invoked via `/red-team`) |
+| `--no-audit` | Disable the hostile auditor phase (use to opt out when invoked via `/red-team`) | — |
 
 **Recommended `--lens` values**: `security`, `performance`, `UX`, `data-integrity`, `cost`, `temporal` (timeline/sequencing risks), `user-advocate` (end-user empathy), `scalability`
 

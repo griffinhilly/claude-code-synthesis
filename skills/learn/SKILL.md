@@ -101,7 +101,7 @@ If no learnings file exists, say: "No learnings captured yet for this project. U
 
 Arguments after `search`: the search term(s).
 
-1. Glob for all `.claude-learnings.jsonl` files across all project directories (recursively).
+1. Glob for all `.claude-learnings.jsonl` files recursively. Search root in this order: (a) `~/Projects/` if it exists, (b) otherwise the current working directory. Do NOT fall back to globbing the entire home directory (`~/`) — on a developer machine that would traverse `node_modules`, `.git`, cache folders, and thousands of irrelevant paths. Users who keep projects in a non-standard location should adjust this skill (or symlink their projects directory to `~/Projects`) rather than widening the search scope.
 2. Read each file and search for entries where `summary`, `detail`, or `tags` contain the search term (case-insensitive).
 3. Display matching entries grouped by project, with the project path as a header.
 
