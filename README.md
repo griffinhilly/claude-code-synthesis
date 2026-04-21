@@ -30,8 +30,9 @@ git clone https://github.com/griffinhilly/claude-code-synthesis /tmp/claude-work
 # Operating model
 cp /tmp/claude-workflow/CLAUDE.md ~/.claude/CLAUDE.md
 
-# Skills (copy to project or global commands)
-cp -r /tmp/claude-workflow/skills/* ~/.claude/commands/
+# Skills
+mkdir -p ~/.claude/skills
+cp -r /tmp/claude-workflow/skills/* ~/.claude/skills/
 
 # Hooks
 cp -r /tmp/claude-workflow/hooks/* ~/.claude/hooks/
@@ -71,11 +72,11 @@ Skills are `.claude/commands/` files that encode multi-step workflows as single 
 | `/retro` | Periodic retrospective. Scopes: session, weekly, or project. Turns patterns into rules. |
 | `/learn` | Capture structured learnings (gotcha, pattern, decision, bug-fix) as JSONL. Cross-project searchable. |
 | `/dialectic-review` | Multi-agent adversarial analysis. 4 modes: review, ideate, tradeoff, premortem. Configurable agents, expert lenses, and optional hostile auditor (`--audit`). |
-| `/bug-hunt` | Three-agent adversarial bug-finding. Hunter overclaims, Skeptic disproves, Referee arbitrates. Asymmetric scoring forces distinct agent behaviors. |
-| `/brainstorm` | Dialectic ideation. Wrapper for `/dialectic-review --ideate`. |
-| `/premortem` | Assume failure, find the causes. Wrapper for `/dialectic-review --premortem`. |
-| `/red-team` | Adversarial stress-testing of code, plans, or arguments. Wrapper for `/dialectic-review`. |
-| `/tradeoff` | Compare options with dedicated advocates and a decisive referee. Wrapper for `/dialectic-review --tradeoff`. |
+| `/bug-hunt` | Three-agent adversarial bug finder. Hunter overclaims, Skeptic disproves, Referee arbitrates. Scoring incentives force each role to behave honestly. |
+| `/brainstorm` | Generate a wide field of ideas, then pressure-test them. Five generators diverge, challengers prune, synthesizers rank what survives. |
+| `/premortem` | Assume the plan failed, then explain why. Pessimists diagnose failure, optimists rebut, a risk assessor weighs which failures are real. |
+| `/red-team` | Adversarial stress-test with hostile auditor. Critics attack, defender rebuts, referee judges, then a 4th agent attacks the synthesis itself. `--audit` on by default. |
+| `/tradeoff` | Compare 2+ options with dedicated advocates, counter-advocates who challenge every position, and a decisive referee. |
 | `/socrates` | Socratic questioning to stress-test a philosophical framework or thesis. |
 
 ### `commands/` -- 8 Workflow Commands

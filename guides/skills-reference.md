@@ -18,11 +18,12 @@ Skills in this table have corresponding directories in `skills/`.
 | `/comp [directory]` | Create or update all 4 COMP files for a directory. |
 | `/wrapup [flags]` | Session closer. Chains COMP updates + bloat check + session summary. Supports `noprune`, `prune` (full). |
 | `/retro [scope]` | Periodic retrospective. Assesses what went well, what went poorly, patterns, and actionable suggestions. Scopes: `session` (default), `weekly`, `project <name>`. |
-| `/dialectic-review [flags] [focus]` | Multi-agent dialectic with 4 modes: `review` (Critics -> Defenders -> Referees), `--ideate` (Generators -> Challengers -> Synthesizers), `--tradeoff` (Advocates -> Counter-Advocates -> Referee), `--premortem` (Pessimists -> Optimists -> Risk Assessors). Supports `--agents X-Y-Z`, `--lens <expert>`, `--test-first`. |
-| `/brainstorm <topic>` | Dialectic brainstorming -- generate and stress-test ideas. Alias for `/dialectic-review --ideate`. |
-| `/premortem [plan]` | Dialectic premortem -- assume failure, find the causes, assess real risks. Alias for `/dialectic-review --premortem`. |
-| `/red-team [target]` | Adversarial stress-testing of code, plans, or arguments. Alias for `/dialectic-review` (review mode). |
-| `/tradeoff [options]` | Dialectic tradeoff analysis -- compare options with dedicated advocates and a decisive referee. Alias for `/dialectic-review --tradeoff`. |
+| `/dialectic-review [flags] [focus]` | Multi-agent dialectic with 4 modes: `review` (Critics -> Defenders -> Referees), `--ideate` (Generators -> Challengers -> Synthesizers), `--tradeoff` (Advocates -> Counter-Advocates -> Referee), `--premortem` (Pessimists -> Optimists -> Risk Assessors). Supports `--agents X-Y-Z`, `--lens <expert>`, `--test-first`, `--audit` (hostile auditor), `--no-audit`. |
+| `/brainstorm <topic>` | Generate a wide field of ideas, then pressure-test them. Five generators diverge, challengers prune, synthesizers rank what survives. |
+| `/premortem [plan]` | Assume the plan failed, then explain why. Pessimists diagnose failure, optimists rebut, a risk assessor weighs which failures are real. |
+| `/red-team [target]` | Adversarial stress-test with hostile auditor. Critics attack, defender rebuts, referee judges, then a 4th agent attacks the synthesis itself. `--audit` on by default; pass `--no-audit` for plain review. |
+| `/tradeoff [options]` | Compare 2+ options with dedicated advocates, counter-advocates who challenge every position, and a decisive referee. |
+| `/bug-hunt [target]` | Three-agent adversarial bug finder. Hunter overclaims, Skeptic disproves, Referee arbitrates. Scoring incentives force each role to behave honestly. Supports `--lens <expert>`. |
 | `/socrates <thesis>` | Socratic debate session to stress-test a philosophical framework or thesis. |
 | `/debug [issue]` | Structured debugging with mandatory evidence gathering before any fix attempt. 4-phase protocol (Observe -> Hypothesize -> Reproduce -> Fix) with hard gates between phases. |
 | `/learn <type> <lesson>` | Capture structured learnings (gotcha, pattern, decision, bug-fix) as JSONL per project. Cross-project searchable. |
