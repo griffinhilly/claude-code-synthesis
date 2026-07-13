@@ -3,7 +3,7 @@ name: dialectic-review
 description: Dialectic process for reviewing, brainstorming, comparing tradeoffs, or stress-testing plans. Configurable modes, agent counts, and expert lenses.
 user-invocable: true
 disable-model-invocation: false
-argument-hint: [--mode review|ideate|tradeoff|premortem] [--agents X-Y-Z] [--lens <expert>] [--test-first] [--audit] [focus area]
+argument-hint: "[--mode review|ideate|tradeoff|premortem] [--agents X-Y-Z] [--lens <expert>] [--test-first] [--audit] [focus area]"
 ---
 
 # Dialectic Review

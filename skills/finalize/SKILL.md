@@ -3,7 +3,7 @@ name: finalize
 description: End-of-session COMP update — record decisions, progress, and state changes
 user-invocable: true
 disable-model-invocation: false
-argument-hint: [project path or name]
+argument-hint: "[project path or name]"
 ---
 
 # Session Finalization

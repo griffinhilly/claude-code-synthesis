@@ -3,7 +3,7 @@ name: socrates
 description: Start a Socratic debate session to stress-test a philosophical framework or thesis
 user-invocable: true
 disable-model-invocation: true
-argument-hint: [framework:<path>] [opening question or topic to debate]
+argument-hint: "[framework:<path>] [opening question or topic to debate]"
 ---
 
 # Socrates — Philosophical Debate Partner

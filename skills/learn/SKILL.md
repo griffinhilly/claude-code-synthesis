@@ -3,7 +3,7 @@ name: learn
 description: Capture structured learnings (gotcha, pattern, decision, bug-fix) as JSONL per project. Cross-project searchable.
 user-invocable: true
 disable-model-invocation: false
-argument-hint: [type] <description> | list | search <term>
+argument-hint: "[type] <description> | list | search <term>"
 ---
 
 # Structured Learning Capture

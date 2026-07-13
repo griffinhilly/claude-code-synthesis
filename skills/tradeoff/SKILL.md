@@ -3,7 +3,7 @@ name: tradeoff
 description: Compare 2+ options with a dedicated advocate for each, counter-advocates who challenge every position, and a referee who ranks what survives.
 user-invocable: true
 disable-model-invocation: true
-argument-hint: [--agents X-Y-Z] [--lens <expert>] [options to compare]
+argument-hint: "[--agents X-Y-Z] [--lens <expert>] [options to compare]"
 ---
 
 # Tradeoff

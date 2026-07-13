@@ -3,7 +3,7 @@ name: red-team
 description: Adversarial stress-test of code, a plan, or an argument. Three critics attack, one defender rebuts, a referee judges, then a hostile auditor attacks the synthesis itself.
 user-invocable: true
 disable-model-invocation: true
-argument-hint: [--no-audit] [--agents X-Y-Z] [--lens <expert>] [focus area]
+argument-hint: "[--no-audit] [--agents X-Y-Z] [--lens <expert>] [focus area]"
 ---
 
 # Red Team

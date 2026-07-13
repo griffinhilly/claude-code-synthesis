@@ -3,7 +3,7 @@ name: verify
 description: Verify outputs after pipeline steps, implementations, or any multi-step work. Catches missing data, stale references, broken assumptions. Use after completing significant work, before declaring done.
 user-invocable: true
 disable-model-invocation: false
-argument-hint: [target — what to verify]
+argument-hint: "[target — what to verify]"
 ---
 
 # Verify
