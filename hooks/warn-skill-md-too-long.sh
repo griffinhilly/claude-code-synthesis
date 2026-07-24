@@ -25,11 +25,10 @@ LINE_COUNT=$(wc -l < "$FILE_PATH" | tr -d ' ')
 
 if [ "$LINE_COUNT" -gt 150 ]; then
     SKILL_NAME=$(echo "$FILE_PATH" | sed -E 's|.*\.claude/skills/([^/]+)/SKILL.md|\1|')
-    cat <<EOF
+    cat >&2 <<EOF
 WARNING: $SKILL_NAME/SKILL.md is now $LINE_COUNT lines (threshold: 150).
 
-Per ~/.claude/RESOLVER.md Section 3, consider refactoring into
-folder-with-leaf-files (progressive disclosure):
+Consider refactoring into folder-with-leaf-files (progressive disclosure):
   - SKILL.md keeps numbered steps + @reference pointers only
   - rules.md, examples.md, templates.md, etc. become separate files loaded on demand
 
@@ -37,8 +36,11 @@ Single-file skills cause "attention competition" — fix one thing, break anothe
 threshold is approximate; the principle is "rules + examples + templates in one file =
 refactor candidate."
 
-This is a warning, not a block.
+This is a warning, not a block — the write succeeded.
 EOF
+    # PostToolUse exit 2 = non-blocking notice fed back to the model
+    # (exit 0 stdout goes only to the debug log and never reaches Claude).
+    exit 2
 fi
 
 exit 0

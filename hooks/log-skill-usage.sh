@@ -5,11 +5,19 @@
 INPUT=$(cat)
 # python3 first: stock macOS 12.3+ and many Linux distros ship no bare `python`
 PY=$(command -v python3 || command -v python) || exit 0
-SKILL_NAME=$(echo "$INPUT" | "$PY" -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('skill',''))" 2>/dev/null)
+# Session id comes from the event JSON itself (the env var is not a documented
+# hook variable and is usually unset, which logged "unknown" for every row)
+PARSED=$(echo "$INPUT" | "$PY" -c "
+import sys, json
+d = json.load(sys.stdin)
+print(d.get('tool_input', {}).get('skill', ''))
+print(d.get('session_id', '') or 'unknown')
+" 2>/dev/null)
+SKILL_NAME=$(echo "$PARSED" | sed -n 1p)
+SESSION_ID=$(echo "$PARSED" | sed -n 2p)
 
 [ -z "$SKILL_NAME" ] && exit 0
-
-SESSION_ID="${CLAUDE_SESSION_ID:-unknown}"
+SESSION_ID="${SESSION_ID:-unknown}"
 PROJECT=$(basename "$(pwd)")
 
 LOG_FILE="$HOME/.claude/skill-usage.log"

@@ -44,17 +44,32 @@ mkdir -p "$TARGET_DIR"
 # ── 3. Copy CLAUDE.md ────────────────────────────────────────────────────────
 
 if [ "${SKIP_CLAUDE_MD:-0}" != "1" ]; then
+    # Back up an existing CLAUDE.md even on an approved overwrite — README
+    # promises deploy.sh backs up anything it overwrites, and a hand-tuned
+    # CLAUDE.md is the most expensive file to lose
+    if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
+        CLAUDE_BAK="$TARGET_DIR/CLAUDE.md.backup-$(date +%Y%m%d-%H%M%S)"
+        cp "$TARGET_DIR/CLAUDE.md" "$CLAUDE_BAK"
+        echo "  Backed up existing CLAUDE.md to $CLAUDE_BAK"
+    fi
     cp "$REPO_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
     echo "  Installed CLAUDE.md"
 fi
 
-# ── 3b. Copy RESOLVER.md (routing table) ─────────────────────────────────────
+# ── 3b. Copy RESOLVER.md (routing table) and candidate-rules.md ──────────────
 
 if [ -f "$TARGET_DIR/RESOLVER.md" ]; then
     echo "  Keeping existing RESOLVER.md (repo version at $REPO_DIR/RESOLVER.md if you want to merge)"
 else
     cp "$REPO_DIR/RESOLVER.md" "$TARGET_DIR/RESOLVER.md"
     echo "  Installed RESOLVER.md"
+fi
+
+# candidate-rules.md: the pending-promotion ledger RESOLVER.md and /wrapup
+# write to — must exist or first use hits a missing file
+if [ ! -f "$TARGET_DIR/candidate-rules.md" ]; then
+    cp "$REPO_DIR/candidate-rules.md" "$TARGET_DIR/candidate-rules.md"
+    echo "  Installed candidate-rules.md (empty pending-promotion ledger)"
 fi
 
 # ── 4. Merge directories (copy contents without deleting existing files) ─────
@@ -142,16 +157,6 @@ if [ -f "$SETTINGS_FILE" ]; then
         ]
       },
       {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/epistemic-guard.sh\"",
-            "timeout": 5
-          }
-        ]
-      },
-      {
         "matcher": "Skill",
         "hooks": [
           {
@@ -166,6 +171,11 @@ if [ -f "$SETTINGS_FILE" ]; then
       {
         "matcher": "Write|Edit",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/epistemic-guard.sh\"",
+            "timeout": 3
+          },
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/warn-skill-md-too-long.sh\"",
@@ -249,16 +259,6 @@ else
         ]
       },
       {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/epistemic-guard.sh\"",
-            "timeout": 5
-          }
-        ]
-      },
-      {
         "matcher": "Skill",
         "hooks": [
           {
@@ -273,6 +273,11 @@ else
       {
         "matcher": "Write|Edit",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/epistemic-guard.sh\"",
+            "timeout": 3
+          },
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/warn-skill-md-too-long.sh\"",
@@ -320,6 +325,24 @@ JSONEOF
     echo "  Created settings.json with hooks configured"
 fi
 
+# ── 6b. Verify the hooks actually fire ───────────────────────────────────────
+# Every hook resolves python at runtime and FAILS OPEN (allows everything,
+# silently) if it can't. On Windows, `python3` often resolves to the Microsoft
+# Store alias stub, which produces nothing. So: feed a known-destructive event
+# to warn-destructive.sh and require the block, instead of trusting the install.
+
+HOOK_TEST_JSON='{"tool_input":{"command":"rm -rf /tmp/deploy-selftest-target"}}'
+if printf '%s' "$HOOK_TEST_JSON" | bash "$TARGET_DIR/hooks/warn-destructive.sh" >/dev/null 2>&1; then
+    echo ""
+    echo "  WARNING: hook self-check FAILED — warn-destructive.sh did NOT block a"
+    echo "  destructive test command. The hooks are likely inert on this machine"
+    echo "  (usually: no working python3/python on PATH, or a Windows Store python"
+    echo "  alias stub). The security hooks FAIL OPEN: everything is allowed until"
+    echo "  this is fixed. Run: bash \"$TARGET_DIR/hooks/test-hooks.sh\" to diagnose."
+else
+    echo "  Verified: hooks fire (warn-destructive blocked a test command)"
+fi
+
 # ── 7. Summary ───────────────────────────────────────────────────────────────
 
 echo ""
@@ -327,11 +350,11 @@ echo "=== Deploy Complete ==="
 echo ""
 echo "Installed to $TARGET_DIR/:"
 [ "${SKIP_CLAUDE_MD:-0}" != "1" ] && echo "  - CLAUDE.md (operating model + instructions)"
-echo "  - skills/    (23 skills: /plan-task, /dialectic-review, /wrapup, ...)"
+echo "  - skills/    ($(find "$REPO_DIR/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ') skills: /plan-task, /dialectic-review, /wrapup, ...)"
 echo "  - commands/  (7 workflow commands: /start, /prompt, /prune, ...)"
 echo "  - hooks/     (security hooks: secret blocking, destructive command warnings)"
 echo "  - guides/    (situational guides: context-efficiency, delegation, ...)"
-echo "  - tools/     (session-search, skill-usage-report)"
+echo "  - tools/     (session-search, skill-usage-report, check-resolvable, ...)"
 echo ""
 
 echo "Next steps:"

@@ -30,7 +30,7 @@ Leverage Doctrine. You do the thinking. Claude does the doing. You ideate, decid
 
 Plan-First Protocol. Every task starts with: what's the objective? How will we know it worked? What are the sub-tasks? Research agents plan, implementation agents execute. Never both.
 
-Scope Discipline. Claude pushes back on ambitious plans. "This is a 3-session project. Want to start with just X?" A working smaller thing beats a half-finished grand vision.
+Scope Discipline. This rule reversed with use: v2 told Claude to push back on ambitious plans and suggest smaller increments. Months of real sessions showed the agent's underscoping instinct is the bigger failure mode — agent throughput outruns human-coding intuitions. v3 defaults to continuation and re-triages explicitly when scope shifts. A working smaller thing still beats a half-finished grand vision; the change is who calls the stopping point.
 
 Orchestrator-First. The session agent is a manager, not a worker. Before any task, it decides: handle directly, delegate to a subagent, or route to MCP? This is the single biggest lever for productivity.
 

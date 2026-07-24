@@ -1,6 +1,6 @@
 # Claude Code Workflow
 
-A complete, opinionated Claude Code workflow. 23 skills, 10 hooks, 29 guides, 8 tools, a routing table, and an operating model you can install in one command.
+A complete, opinionated Claude Code workflow. 23 skills, 10 hooks, 29 guides, 7 tools, a routing table, and an operating model you can install in one command.
 
 **This isn't a tutorial or a library.** It's a working configuration -- built over a year of daily use -- that you can copy into your own setup and adapt.
 
@@ -14,7 +14,7 @@ v2 (April 2026) shipped the full skill/hook/guide system. v3 ships three months 
 - **Mid-Session Hygiene** -- new CLAUDE.md section: `/rewind` over appended corrections, `/clear` at task-type boundaries, steered `/compact` at ~60% instead of riding into auto-compaction, and diagnose-before-abandoning for off-track sessions.
 - **16 new guides** -- including hook self-testing, verify-before-deploy, data-before-code, subagent severity calibration, prose de-AI-ism, native HTML/CSS charts, and pre-publish critical response. Several encode rules promoted only after the same failure was sighted twice or more in real sessions.
 - **4 new skills** -- `/distill` (extract rules from your corrections), `/sessions` (find/resume past sessions), `/check-resolvable` (audit orphaned config), `/autoresearch` (bounded autonomous optimization). Plus `--council` mode for `/dialectic-review` and a deterministic scope gate in `/plan-task`.
-- **Hook bugfix release + test harness.** An adversarial review found the v2 hooks had silent no-op failure modes (bare `python` on python3-only systems), bypasses (chained commands after `git commit`), and false positives (`git push origin my-feature-branch` matched a `-f` pattern). All fixed, with a 20-case test harness (`hooks/test-hooks.sh`) so regressions can't ship silently again. The full defect list is honest history: nearly every bug would have been caught by the repo's own doctrine applied to itself.
+- **Hook bugfix release + test harness.** Two rounds of adversarial review (a solo pass in July, then a full multi-agent dialectic on the v3 diff itself) found the v2 hooks had silent no-op failure modes (bare `python` on python3-only systems), bypasses (chained commands, multi-target `rm -rf`, flag-order variants), and false positives (`git push origin my-feature-branch` matching a `-f` pattern, `git add .gitignore` matching `git add .`). All fixed, with a test harness (`hooks/test-hooks.sh`) covering all 10 hooks, and deploy.sh now verifies post-install that the hooks actually fire rather than failing open silently. The defect lists are honest history: nearly every bug would have been caught by the repo's own doctrine applied to itself — including the second round's finding that the first round's fixes landed in one file but not its siblings.
 
 ## Quick Start
 
@@ -22,7 +22,7 @@ v2 (April 2026) shipped the full skill/hook/guide system. v3 ships three months 
 ```bash
 cp CLAUDE.md ~/.claude/CLAUDE.md   # back up any existing ~/.claude/CLAUDE.md first
 ```
-Edit the `Platform Notes` and `Interaction Style` sections to match your setup. This single file changes how Claude approaches every task. One caveat: CLAUDE.md references skills like `/dialectic-review` that a Tier 1-only install doesn't have — the file tells Claude to fall back to lightweight alternatives, but the full experience needs Tier 2.
+Edit the `Platform Notes` and `Interaction Style` sections to match your setup. This single file changes how Claude approaches every task. One caveat: this CLAUDE.md is written for the full install. On its own, its skill references (`/dialectic-review` etc.), its ~25 situational-guide pointers, and the RESOLVER.md routing mandate all point at files you won't have — the Decision Quality Gates have an explicit no-skills fallback, but the guide pointers will just be dead references Claude learns to skip. Tier 1 is a preview of the operating model, not a working subset; the working system is Tier 2.
 
 **Tier 2: Full install (recommended).**
 ```bash
@@ -102,14 +102,14 @@ Commands are user-invocable slash commands that handle session lifecycle and pro
 | `block-secret-reads.sh` | PreToolUse (Read) | Blocks the Read tool on `.env`, credential, and key files |
 | `log-skill-usage.sh` | PreToolUse (Skill) | Tracks skill invocations with session IDs to a log file for usage analytics |
 | `post-compact-reminder.sh` | PostCompact | Re-injects session context and Decision Quality Gates after compaction |
-| `epistemic-guard.sh` | PreToolUse (Write/Edit) | Warns when content contains unverified epistemic claims ("should work", "probably fine") |
-| `log-unwrapped-session.sh` | SessionEnd | Flags sessions that end with a dirty git tree, so the next `/start` can reconcile unrecorded work |
-| `warn-skill-md-too-long.sh` | PostToolUse (Write/Edit) | Warns when a SKILL.md exceeds 150 lines — skills should stay lean, with depth in referenced files |
-| `check-new-file-index.sh` | PostToolUse (Write) | Reminds to update the relevant index when a new file is created |
+| `epistemic-guard.sh` | PostToolUse (Write/Edit) | Non-blocking notice to the model when written content contains unverified epistemic claims ("should work", "probably fine") |
+| `log-unwrapped-session.sh` | SessionEnd | Flags sessions that end with a dirty git tree (any git repo outside `$HOME` itself), so the next session can reconcile unrecorded work |
+| `warn-skill-md-too-long.sh` | PostToolUse (Write/Edit) | Non-blocking notice when a SKILL.md exceeds 150 lines — skills should stay lean, with depth in referenced files |
+| `check-new-file-index.sh` | PostToolUse (Write) | Non-blocking reminder to update the relevant index when a new file is created |
 
-Every hook is covered by `hooks/test-hooks.sh`, a 20-case harness that feeds each hook the same JSON the Claude Code harness would send and asserts the exact allow/block exit code. Run it after any hook edit (see `guides/hook-self-test.md`).
+Every hook is covered by `hooks/test-hooks.sh`, a harness that feeds each of the 10 hooks the same JSON the Claude Code harness would send and asserts the exact allow/block/notice exit code — including regression cases for every bypass and false positive found in review. Run it after any hook edit (see `guides/hook-self-test.md`). Note the delivery mechanics it encodes: on PreToolUse/PostToolUse, exit-0 output goes only to the debug log; a warning only reaches the model via PostToolUse exit 2 (non-blocking notice), which is how the three reminder hooks work. And know the failure mode: if no working `python3`/`python` is on PATH, the hooks fail OPEN — `deploy.sh` checks for this at install time.
 
-### `tools/` -- 8 Utilities
+### `tools/` -- 7 Utilities
 
 | Tool | What It Does |
 |------|-------------|
@@ -118,7 +118,7 @@ Every hook is covered by `hooks/test-hooks.sh`, a 20-case harness that feeds eac
 | `check-resolvable.py` | Deterministic reachability scan: finds skills, guides, and tools unreachable from CLAUDE.md / RESOLVER.md. Backs the `/check-resolvable` skill. |
 | `skill-trigger-evals.py` | Eval harness for skill routing: checks that test-case task descriptions resolve to real skills (cases in `skill-trigger-evals.jsonl`). |
 | `mock-finder.py` | Scans for stub/TODO/placeholder code debt an agent left behind. |
-| `heartbeat.py` | Silent-by-default monitoring: parses a HEARTBEAT.md checklist, emits only anomalies. |
+| `heartbeat.py` | Silent-by-default monitoring: parses a `~/.claude/HEARTBEAT.md` checklist you write (format documented in the script header), emits only anomalies. |
 | `archive-transcripts.sh` | Idempotent daily archival of session transcripts before Claude Code's retention window prunes them. |
 
 ### `guides/` -- 29 On-Demand Reference Docs
@@ -244,7 +244,7 @@ The 9-step flow from `/start` to `/prune`, covering a complete session lifecycle
 8. **`/wrapup`** -- Update COMP files, check skill health, audit context bloat
 9. **`/prune`** -- Periodically trim context bloat (monthly or when `/wrapup` flags it)
 
-Not every session uses all 9 steps. A quick bug fix might be `/start`, `/debug`, `/ship`, `/wrapup`. A planning session might be `/start`, `/plan-task`, `/review-plan`, `/wrapup`. Use judgment.
+Not every session uses all 9 steps. A quick bug fix might be `/start`, `/debug`, `/ship`, `/wrapup`. A planning session might be `/start`, `/plan-task`, `/review-plan`, `/wrapup`. Use judgment — and note that [What Actually Gets Used](#what-actually-gets-used) shows our own sessions rarely invoke steps 4-7 explicitly anymore; their checks migrated into always-on CLAUDE.md doctrine. The 9 steps are the full ceremony; the lived workflow is closer to steps 1-2, doctrine doing 4-7 implicitly, then 8.
 
 ## Updating and Uninstalling
 

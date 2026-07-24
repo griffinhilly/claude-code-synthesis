@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Reachability audit for ~/.claude/ workflow capabilities.
 
-purpose: Walk CLAUDE.md / RESOLVER.md / skill files and find orphans — skills, commands,
-         guides, and tools that exist on disk but have no path from any reachable root.
-inputs: ~/.claude/CLAUDE.md, ~/.claude/RESOLVER.md, ~/.claude/skills/, ~/.claude/commands/,
-        ~/.claude/guides/, ~/.claude/tools/, ~/.claude/SAFETY.md
+purpose: BFS from the auto-loaded roots (CLAUDE.md, RESOLVER.md, SAFETY.md,
+         candidate-rules.md, user-invocable skills) and find orphans — skills,
+         commands, guides, and tools that exist on disk but have no reference
+         path from any root. A capability referenced only by another orphan is
+         still an orphan (this is a graph traversal, not a mention-scan).
+inputs: ~/.claude/CLAUDE.md, ~/.claude/RESOLVER.md, ~/.claude/skills/,
+        ~/.claude/commands/, ~/.claude/guides/, ~/.claude/tools/
 outputs: JSON report to stdout (or to a path if --out provided). Optional human summary.
+         Missing directories are treated as empty (partial/Tier-1 installs are fine).
 
 Per CLAUDE.md latent-vs-deterministic rule, this is a *deterministic* audit. Same input
 produces same output every run. No LLM judgment in the scan — only the optional second-pass
@@ -21,36 +25,48 @@ CLAUDE_DIR = Path.home() / ".claude"
 
 
 def list_capabilities():
-    """Inventory what exists on disk."""
-    skills = sorted(p.name for p in (CLAUDE_DIR / "skills").iterdir() if p.is_dir())
-    commands = sorted(p.stem for p in (CLAUDE_DIR / "commands").glob("*.md"))
-    guides = sorted(p.stem for p in (CLAUDE_DIR / "guides").glob("*.md"))
-    tools = sorted(p.name for p in (CLAUDE_DIR / "tools").iterdir()
-                   if p.is_file() and p.suffix in {".py", ".sh"})
+    """Inventory what exists on disk. Missing directories count as empty."""
+    skills_dir = CLAUDE_DIR / "skills"
+    commands_dir = CLAUDE_DIR / "commands"
+    guides_dir = CLAUDE_DIR / "guides"
+    tools_dir = CLAUDE_DIR / "tools"
+    skills = sorted(p.name for p in skills_dir.iterdir() if p.is_dir()) if skills_dir.is_dir() else []
+    commands = sorted(p.stem for p in commands_dir.glob("*.md")) if commands_dir.is_dir() else []
+    guides = sorted(p.stem for p in guides_dir.glob("*.md")) if guides_dir.is_dir() else []
+    tools = sorted(p.name for p in tools_dir.iterdir()
+                   if p.is_file() and p.suffix in {".py", ".sh"}) if tools_dir.is_dir() else []
     return {"skills": skills, "commands": commands, "guides": guides, "tools": tools}
 
 
-def gather_text():
-    """Concatenate all roots + auto-loaded files for reference scanning."""
+def capability_text(kind, name):
+    """The text a capability contributes to the graph once it is reached."""
+    try:
+        if kind == "skill":
+            d = CLAUDE_DIR / "skills" / name
+            return "\n".join(p.read_text(encoding="utf-8", errors="replace")
+                             for p in sorted(d.rglob("*.md")))
+        if kind == "command":
+            return (CLAUDE_DIR / "commands" / f"{name}.md").read_text(encoding="utf-8", errors="replace")
+        if kind == "guide":
+            return (CLAUDE_DIR / "guides" / f"{name}.md").read_text(encoding="utf-8", errors="replace")
+        if kind == "tool":
+            return (CLAUDE_DIR / "tools" / name).read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        pass
+    return ""
+
+
+def root_text():
+    """Text of the always-loaded roots."""
     roots = [CLAUDE_DIR / "CLAUDE.md",
              CLAUDE_DIR / "RESOLVER.md",
              CLAUDE_DIR / "SAFETY.md",
-             CLAUDE_DIR / "HEARTBEAT.md",
              CLAUDE_DIR / "candidate-rules.md"]
-    text = []
-    for r in roots:
-        if r.exists():
-            text.append(f"=== {r.name} ===\n" + r.read_text(encoding="utf-8"))
-    # Also include all SKILL.md content (skills reference other skills/guides)
-    for p in (CLAUDE_DIR / "skills").rglob("*.md"):
-        text.append(f"=== {p.relative_to(CLAUDE_DIR)} ===\n" + p.read_text(encoding="utf-8"))
-    for p in (CLAUDE_DIR / "guides").glob("*.md"):
-        text.append(f"=== guides/{p.name} ===\n" + p.read_text(encoding="utf-8"))
-    return "\n\n".join(text)
+    return "\n\n".join(r.read_text(encoding="utf-8", errors="replace") for r in roots if r.exists())
 
 
-def find_references(corpus, kind, name):
-    """Return list of files that reference a given capability."""
+def is_referenced(corpus, kind, name):
+    """Does the corpus reference a given capability?"""
     patterns = []
     # NOTE: `/name` cannot use \b on the leading slash (both `/` and the space-before-it
     # are non-word chars, so there's no word boundary). Use (?<!\w) lookbehind instead.
@@ -77,10 +93,7 @@ def find_references(corpus, kind, name):
             rf"\btools/{re.escape(name)}\b",
             rf"`{re.escape(name)}`",
         ]
-    for pat in patterns:
-        if re.search(pat, corpus):
-            return True
-    return False
+    return any(re.search(pat, corpus) for pat in patterns)
 
 
 def is_user_invocable(skill_name):
@@ -88,41 +101,43 @@ def is_user_invocable(skill_name):
     skill_md = CLAUDE_DIR / "skills" / skill_name / "SKILL.md"
     if not skill_md.exists():
         return False
-    head = skill_md.read_text(encoding="utf-8")[:600]
+    head = skill_md.read_text(encoding="utf-8", errors="replace")[:600]
     # Frontmatter is YAML between --- markers. Look for user-invocable: true
     return bool(re.search(r"user-invocable:\s*true", head, re.I))
 
 
 def audit():
     caps = list_capabilities()
-    corpus = gather_text()
 
-    orphans = {"skills": [], "commands": [], "guides": [], "tools": []}
-    reachable = {"skills": [], "commands": [], "guides": [], "tools": []}
+    # BFS: start from root text + user-invocable skills; each newly-reached
+    # capability contributes its own text; repeat to fixpoint.
+    all_caps = [(kind, name) for kind in ("skills", "commands", "guides", "tools")
+                for name in caps[kind]]
+    kind_singular = {"skills": "skill", "commands": "command", "guides": "guide", "tools": "tool"}
 
+    reached = set()
+    corpus_parts = [root_text()]
     for s in caps["skills"]:
-        if is_user_invocable(s) or find_references(corpus, "skill", s):
-            reachable["skills"].append(s)
-        else:
-            orphans["skills"].append(s)
+        if is_user_invocable(s):
+            reached.add(("skills", s))
+            corpus_parts.append(capability_text("skill", s))
 
-    for c in caps["commands"]:
-        if find_references(corpus, "command", c):
-            reachable["commands"].append(c)
-        else:
-            orphans["commands"].append(c)
+    changed = True
+    while changed:
+        changed = False
+        corpus = "\n\n".join(corpus_parts)
+        for kind, name in all_caps:
+            if (kind, name) in reached:
+                continue
+            if is_referenced(corpus, kind_singular[kind], name):
+                reached.add((kind, name))
+                corpus_parts.append(capability_text(kind_singular[kind], name))
+                changed = True
 
-    for g in caps["guides"]:
-        if find_references(corpus, "guide", g):
-            reachable["guides"].append(g)
-        else:
-            orphans["guides"].append(g)
-
-    for t in caps["tools"]:
-        if find_references(corpus, "tool", t):
-            reachable["tools"].append(t)
-        else:
-            orphans["tools"].append(t)
+    orphans = {k: [] for k in ("skills", "commands", "guides", "tools")}
+    reachable = {k: [] for k in ("skills", "commands", "guides", "tools")}
+    for kind, name in all_caps:
+        (reachable if (kind, name) in reached else orphans)[kind].append(name)
 
     return {
         "total": {k: len(v) for k, v in caps.items()},

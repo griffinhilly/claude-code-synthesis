@@ -170,26 +170,19 @@ def search_sessions(query, project_filter=None, days=None, role_filter=None,
 def shorten_project_name(raw_name):
     """Shorten a Claude Code project directory name for display.
 
-    Claude Code encodes project paths as directory names using '--' as the
-    separator (e.g., 'C--Users--alice--Projects--myapp'). This function
-    detects the user's home directory prefix and strips it, producing a
-    shorter display name like 'Projects/myapp' or '~/myapp'.
+    Claude Code encodes project paths by mapping each ':', '\\', and '/' to a
+    single '-' (e.g., 'C:\\Users\\alice\\Projects\\myapp' -> 'C--Users-alice-
+    Projects-myapp'). This strips the encoded home-directory prefix. Inner
+    hyphens are left alone: a '-' in the remainder is ambiguous between a path
+    separator and a hyphenated directory name, so no '/' substitution is done.
     """
-    # Build the home-directory prefix that Claude Code would use.
-    # On Windows this looks like 'C--Users--username', on Unix '~--username'
-    # or '/home/username' depending on resolution.
     home = Path.home()
-    home_encoded = str(home).replace("\\", "/").replace("/", "--").replace(":", "")
-    # e.g., "C--Users--alice"
+    home_encoded = re.sub(r"[:\\/]", "-", str(home))
+    # e.g., "C--Users-alice" on Windows, "-home-alice" on Linux
 
-    if raw_name.startswith(home_encoded + "-"):
-        remainder = raw_name[len(home_encoded) + 1:]  # strip prefix + separator
-        return remainder.replace("-", "/")
-    elif raw_name.startswith(home_encoded):
-        remainder = raw_name[len(home_encoded):]
-        if remainder.startswith("-"):
-            remainder = remainder[1:]
-        return remainder.replace("-", "/") if remainder else "~"
+    if raw_name.startswith(home_encoded):
+        remainder = raw_name[len(home_encoded):].lstrip("-")
+        return remainder if remainder else "~"
 
     # Fallback: return as-is
     return raw_name

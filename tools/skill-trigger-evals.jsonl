@@ -30,6 +30,4 @@
 {"input": "format this prompt and send it", "expected_skill": "prompt", "category": "tooling"}
 {"input": "format this prompt but don't send", "expected_skill": "prompt-only", "category": "tooling"}
 {"input": "improve this prompt before I send it", "expected_skill": "prompt-refine", "category": "tooling"}
-{"input": "set up Telegram for incoming messages", "expected_skill": "telegram:configure", "category": "integration"}
-{"input": "approve a pairing for the Telegram channel", "expected_skill": "telegram:access", "category": "integration"}
 {"input": "add this hook to settings.json", "expected_skill": "update-config", "category": "integration"}

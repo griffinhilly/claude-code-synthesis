@@ -7,9 +7,9 @@ dist/
 build/
 
 # Data files (too large for git — keep locally)
+# NOTE: deliberately NOT a blanket *.json ignore — that silently drops config
+# and fixture files (the data/ ignore below covers bulk data)
 *.csv
-*.json
-!shared/*.py
 *.npz
 *.har
 
@@ -36,3 +36,6 @@ Thumbs.db
 
 # Claude Code
 .claude/
+
+# Private working notes — must never be published
+drafts/

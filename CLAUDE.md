@@ -180,6 +180,10 @@ When you encounter these situations, read the corresponding guide before proceed
 - When debugging an MCP server on Windows that won't start or appears connected but inert -> read `~/.claude/guides/mcp-windows-debugging.md`
 - When constructing file paths containing usernames or system directories -> read `~/.claude/guides/windows-paths.md`
 - When a public data or document host is down / 403s / throttles and you need the data -> read `~/.claude/guides/unavailable-source-fallback.md` (archive snapshot + mandatory validation)
+- When designing event-driven or scheduled agent invocation (bash pre-check gates, autonomous loop safety) -> read `~/.claude/guides/event-driven-agents.md`
+- When comparing agent-workflow frameworks or deciding what to adopt from one -> read `~/.claude/guides/reference-repo-comparison.md`
+- When tempted to catalog a fast-moving product's features in a guide -> read `~/.claude/guides/claude-code-features.md` (a superseded stub explaining why that fails)
+- When searching for past session content, decisions, or conversations -> run `python ~/.claude/tools/session-search.py "query"` (supports `--project`, `--days`, `--role`, `--max` filters)
 
 ## Active Hooks
 

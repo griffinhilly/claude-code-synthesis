@@ -18,17 +18,19 @@ LOG="$HOME/.claude/archive/archive.log"
 mkdir -p "$DST"
 mkdir -p "$(dirname "$LOG")"
 
-START_TS=$(date -Iseconds)
+START_TS=$(date +%Y-%m-%dT%H:%M:%S%z)
 BEFORE=$(find "$DST" -type f -name '*.jsonl' 2>/dev/null | wc -l)
 
-# cp -rn: recursive, no-clobber. Once archived, a file is never overwritten,
-# even if the source is later modified — each session is written once to its
-# JSONL and then appended to, so the source file may grow; we want to capture
-# the final state. -u flag makes it update-if-newer instead.
-cp -run "$SRC"/. "$DST"/ 2>/dev/null || true
-# -u pass: for files we already have, copy again only if source is newer.
-# This keeps archive current for in-progress sessions.
-cp -ru "$SRC"/. "$DST"/ 2>/dev/null || true
+# REQUIRES GNU cp (-u update-if-newer is not in BSD/macOS cp). Fail loudly
+# rather than silently archiving nothing — a backup tool whose only failure
+# signal is a zero counter is worse than no backup tool.
+if ! cp --version 2>/dev/null | grep -q GNU; then
+    echo "ERROR: GNU cp required (-u flag). On macOS: brew install coreutils, then use gcp or adjust this script." >&2
+    exit 1
+fi
+# -u pass: copy new files; for files we already have, copy again only if the
+# source is newer (sessions append to their JSONL, so grab the latest state).
+cp -ru "$SRC"/. "$DST"/
 
 AFTER=$(find "$DST" -type f -name '*.jsonl' 2>/dev/null | wc -l)
 ADDED=$((AFTER - BEFORE))

@@ -6,7 +6,7 @@
 
 **Maintenance:** Update this file when a new skill is added, when a memory-file convention changes, or when a routing decision is made repeatedly in sessions (signal that an entry is missing). Quarterly review removes orphan entries; the `/check-resolvable` skill audits reachability.
 
-**Install note:** This file lives at `~/.claude/RESOLVER.md`. Rows referencing skills ship in this repo; rows referencing Claude Code built-ins (`/loop`, `/schedule`, `/update-config`) work without any install. Customize the trigger phrases to the things you actually say.
+**Install note:** This file lives at `~/.claude/RESOLVER.md`. Rows referencing skills ship in this repo; rows marked "Claude Code built-in" (`/loop`, `/schedule`) reflect the product as of mid-2026 — verify against your Claude Code version, since built-in command names drift. Customize the trigger phrases to the things you actually say.
 
 ---
 
@@ -66,6 +66,12 @@ Entries grouped by intent. When the user says something matching the **Trigger p
 | "update the COMP files", "refresh project docs" | `/comp` | Updates CLAUDE.md/ORIENT.md/MEMORY.md/PLAN.md |
 | "audit reachability", "find orphan skills/guides" | `/check-resolvable` | Runs `~/.claude/tools/check-resolvable.py`; reports orphans |
 | "what sessions did I run", "find that crashed session" | `/sessions` | Session table with IDs for resume/recovery |
+| "search past sessions for X" | `python ~/.claude/tools/session-search.py "X"` | Keyword search over transcripts |
+| "skill usage report", "which skills actually get used" | `python ~/.claude/tools/skill-usage-report.py` | Reads the log-skill-usage.sh log |
+| "find stub/TODO/placeholder debt" | `python ~/.claude/tools/mock-finder.py <path>` | Deterministic code-debt scan |
+| "archive session transcripts" | `bash ~/.claude/tools/archive-transcripts.sh` | Run daily (cron/scheduled task) |
+| "silent health monitoring", "heartbeat check" | `python ~/.claude/tools/heartbeat.py` | Parses `~/.claude/HEARTBEAT.md`; emits anomalies only |
+| "eval skill routing coverage" | `python ~/.claude/tools/skill-trigger-evals.py` | Cases in `tools/skill-trigger-evals.jsonl` |
 | "schedule a recurring task" | `/schedule` | Claude Code built-in |
 | "run X every N minutes" | `/loop <interval> <prompt>` | Claude Code built-in |
 | "do X overnight" | `/overnight` | Autonomous unattended run |

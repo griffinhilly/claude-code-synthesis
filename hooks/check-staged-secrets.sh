@@ -7,9 +7,11 @@ INPUT=$(cat)
 PY=$(command -v python3 || command -v python) || exit 0
 COMMAND=$(echo "$INPUT" | "$PY" -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
 
-# Only check git commit commands
+# Only check git commit commands.
+# "git add ." must match only bare-dot staging: `git add .` at end of command
+# or followed by a space — NOT `git add .gitignore` or `git add ./src`.
 case "$COMMAND" in
-  *"git commit"*|*"git add -A"*|*"git add ."*)
+  *"git commit"*|*"git add -A"*|*"git add --all"*|*"git add ."|*"git add . "*)
     ;;
   *)
     exit 0
@@ -18,7 +20,7 @@ esac
 
 # For git add -A or git add ., warn about broad staging
 case "$COMMAND" in
-  *"git add -A"*|*"git add ."*)
+  *"git add -A"*|*"git add --all"*|*"git add ."|*"git add . "*)
     echo "Broad staging detected (git add -A or git add .). Check for .env, credentials, or large binaries before committing." >&2
     exit 2
     ;;

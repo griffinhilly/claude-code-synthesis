@@ -12,17 +12,21 @@ COMMAND=$(echo "$INPUT" | "$PY" -c "import sys,json; print(json.load(sys.stdin).
 # Normalize for matching
 CMD_LOWER=$(echo "$COMMAND" | tr '[:upper:]' '[:lower:]' | sed 's|\\|/|g')
 
-# Intentionally-public template files are fine to display
-case "$CMD_LOWER" in
-  *".env.example"*|*".env.sample"*|*".env.template"*) exit 0 ;;
-esac
+# Intentionally-public template files: STRIP their names from the command
+# rather than early-exiting — `cat .env.example && cat .env` must still be
+# caught by the .env pattern on what remains.
+CMD_LOWER="${CMD_LOWER//.env.example/}"
+CMD_LOWER="${CMD_LOWER//.env.sample/}"
+CMD_LOWER="${CMD_LOWER//.env.template/}"
 
 # Secret file patterns — anchored enough that ordinary filenames don't trip them
 # (bare "token" would block `cat tokenizer_config.json`; "_token"/"token."/"token=" don't).
 SECRET_PATTERNS=".secrets/ secrets/ .env _token token. token= slack_token api_key apikey pgpass credentials .pem .key .p12 .pfx"
 
-# Commands that display file contents to stdout
-DISPLAY_CMDS="cat head tail less more type"
+# Commands that display file contents to stdout. grep/sed/awk/xxd/od/strings
+# can all dump file contents too — a hook that blocks `cat .env` but allows
+# `grep . .env` gives confidence disproportionate to coverage.
+DISPLAY_CMDS="cat head tail less more type grep sed awk xxd od strings"
 
 for pattern in $SECRET_PATTERNS; do
   case "$CMD_LOWER" in

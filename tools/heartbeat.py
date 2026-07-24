@@ -4,8 +4,16 @@
 purpose: Silent-by-default proactive monitoring across your projects. Parse the
          check definitions from ~/.claude/HEARTBEAT.md, execute each, collect non-silent
          output, and emit a summary. Exit 0 silently when nothing fires.
-inputs: ~/.claude/HEARTBEAT.md
+inputs: ~/.claude/HEARTBEAT.md (not shipped — you write it; format below)
 outputs: stdout summary when one or more checks fire; silent exit when all checks pass
+
+HEARTBEAT.md format — one fenced block per check; a check "fires" when its
+command produces any output (write checks to be silent when healthy):
+
+    ```
+    [check] disk-space
+    df -h / | awk 'NR==2 && $5+0 > 90 {print "disk over 90%: " $5}'
+    ```
 
 Designed to be cron-runnable. Pair with /schedule (Anthropic-managed) or Windows Task
 Scheduler. Output can be piped to a messaging integration via:

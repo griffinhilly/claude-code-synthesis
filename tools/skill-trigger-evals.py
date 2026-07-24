@@ -56,12 +56,10 @@ def existing_skills():
         for p in skills_dir.iterdir():
             if p.is_dir() and (p / "SKILL.md").exists():
                 skills.add(p.name)
-    # Also accept plugin-prefixed names (e.g. telegram:configure) and harness-provided
-    # skills (simplify, init, etc) that don't live in ~/.claude/skills/. Hardcoded list
-    # — keep in sync with the session-init skill registry.
-    skills.update({"telegram:configure", "telegram:access", "update-config",
-                   "keybindings-help", "fewer-permission-prompts", "loop", "schedule",
-                   "claude-api", "init", "simplify", "security-review"})
+    # Also accept Claude Code built-in skills that don't live in ~/.claude/skills/.
+    # CUSTOMIZE: add your plugin-provided skills (e.g. "myplugin:configure") here,
+    # or extend BUILTIN_SKILLS via the --extra-skills flag if you add one.
+    skills.update({"loop", "schedule", "init"})
     # Commands also count as routable destinations
     commands_dir = CLAUDE_DIR / "commands"
     if commands_dir.exists():

@@ -10,7 +10,7 @@ FILE_PATH=$(echo "$INPUT" | "$PY" -c "import sys,json; print(json.load(sys.stdin
 # Skip if we couldn't parse the path
 [ -z "$FILE_PATH" ] && exit 0
 
-# Skip guide files, memory files, and CRIMP files themselves
+# Skip guides, memory/project docs, and the index itself
 case "$FILE_PATH" in
   */guides/*|*/MEMORY.md|*/CLAUDE.md|*/INDEX.md|*/PLAN.md|*/README.md|*/STATE.md|*.pyc|*__pycache__*)
     exit 0
@@ -21,8 +21,9 @@ esac
 DIR=$(dirname "$FILE_PATH")
 while [ "$DIR" != "/" ] && [ "$DIR" != "." ]; do
   if [ -f "$DIR/INDEX.md" ]; then
-    echo "New file created: $FILE_PATH — consider updating $DIR/INDEX.md"
-    exit 0
+    # PostToolUse exit 2 = non-blocking notice fed back to the model
+    echo "New file created: $FILE_PATH — consider updating $DIR/INDEX.md (the write succeeded; this is a reminder, not an error)" >&2
+    exit 2
   fi
   DIR=$(dirname "$DIR")
 done
