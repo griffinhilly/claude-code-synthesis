@@ -10,8 +10,11 @@
 
 INPUT=$(cat)
 
+# python3 first: stock macOS 12.3+ and many Linux distros ship no bare `python`
+PY=$(command -v python3 || command -v python) || exit 0
+
 # Extract the content being written — check both Write (content) and Edit (new_string) fields
-CONTENT=$(echo "$INPUT" | python -c "
+CONTENT=$(echo "$INPUT" | "$PY" -c "
 import sys, json
 data = json.load(sys.stdin).get('tool_input', {})
 print(data.get('content', '') or data.get('new_string', ''))

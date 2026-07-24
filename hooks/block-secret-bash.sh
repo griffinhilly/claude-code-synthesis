@@ -3,15 +3,23 @@
 # Reads tool event JSON from stdin
 
 INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | python -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
+# python3 first: stock macOS 12.3+ and many Linux distros ship no bare `python`
+PY=$(command -v python3 || command -v python) || exit 0
+COMMAND=$(echo "$INPUT" | "$PY" -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
 
 [ -z "$COMMAND" ] && exit 0
 
 # Normalize for matching
 CMD_LOWER=$(echo "$COMMAND" | tr '[:upper:]' '[:lower:]' | sed 's|\\|/|g')
 
-# Secret file patterns
-SECRET_PATTERNS=".secrets/ secrets/ .env token slack_token api_key apikey pgpass credentials .pem .key .p12 .pfx"
+# Intentionally-public template files are fine to display
+case "$CMD_LOWER" in
+  *".env.example"*|*".env.sample"*|*".env.template"*) exit 0 ;;
+esac
+
+# Secret file patterns — anchored enough that ordinary filenames don't trip them
+# (bare "token" would block `cat tokenizer_config.json`; "_token"/"token."/"token=" don't).
+SECRET_PATTERNS=".secrets/ secrets/ .env _token token. token= slack_token api_key apikey pgpass credentials .pem .key .p12 .pfx"
 
 # Commands that display file contents to stdout
 DISPLAY_CMDS="cat head tail less more type"
