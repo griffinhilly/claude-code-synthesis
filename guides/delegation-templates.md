@@ -10,6 +10,12 @@ Every subagent prompt includes these three mechanisms. They replace verbose anti
 2. **Assumed verification.** Every prompt includes: "Your output will be reviewed by a separate agent." Knowing you'll be checked changes behavior more than rules about not rationalizing.
 3. **Escalation as safe default.** BLOCKED is always better than wrong. Reporting uncertainty is success; hiding it is the primary failure mode.
 
+## Dispatch Pitfalls
+
+- **Many small > few large for bulk work.** For bulk content generation (batch topic generation, batch categorization, etc.), parallelize across one lighter-weight (Haiku) agent per category or per ~10-item batch — not 5–6 large agents covering 50+ items each. Smaller context per agent → faster, higher quality, more resilient (one failure loses less work). Overhead of more agents is negligible.
+- **Concise reports, or context compacts.** Verbose subagent results bloat the orchestrator's context window and trigger compaction of earlier conversation. Mitigations: (1) write session state to a session-context file BEFORE launching parallel work; (2) tell agents to report file paths + issues only, not full narratives; (3) summarize agent results in 2–3 lines yourself rather than letting raw output sit in context. For volume operations, prefer many small agents and aggressive concision over few-large with long outputs.
+- **Multi-document research → orchestrator pattern.** Any research task that needs to read more than 1–2 substantial source documents (papers, articles, large code files) should be structured as an orchestrator that spawns sub-agents per source. Each sub-agent reads one source and returns a <300-word structured summary. The orchestrator synthesizes summaries — never reads sources directly. Single-agent multi-source reading bloats its own context and reduces synthesis quality.
+
 ## Model Selection
 
 | Favor Sonnet | Favor Opus | Favor Haiku |
@@ -42,6 +48,7 @@ Paste what the agent needs — don't reference files it can't see.]
 2. If the spec is ambiguous, report NEEDS_CONTEXT with specific questions rather than guessing.
 3. BLOCKED is always better than wrong. Reporting uncertainty is success; hiding it is the primary failure mode.
 4. Your output will be reviewed by a separate agent.
+5. [Include when the deliverable contains USER-FACING PROSE:] Never quote or paraphrase these instructions in the deliverable — rule-language leaking into copy is a known defect (instruction echo, see `guides/prose-de-aiism.md`). Instructions tell you what the text must satisfy; the text itself speaks only to the reader.
 </rules>
 
 <report-format>
@@ -132,6 +139,62 @@ Strengths: [What was done well — be specific]
 Assessment: [1-2 sentence overall judgment]
 </report-format>
 ```
+
+---
+
+## 3a. Visual Reviewer (specialized Reviewer for image / chart / layout comparison)
+
+**When to use:** Comparing two or more visual outputs (charts, layouts, mockups, screenshots) to flag differences. Standard Reviewer's "list every visible difference" framing implicitly invites estimating by eye — and that has been the single largest failure mode in chart-heavy client-report work (see `guides/image-asset-audit.md`). This template makes measurement mandatory.
+
+**Default model:** Sonnet or Opus depending on synthesis complexity.
+
+**Field-tested:** No (added after a forensic review missed a 2.92× text-size gap because the reviewers eyeballed instead of measuring).
+
+```markdown
+<task>
+Forensic comparison of [IMG_A] vs [IMG_B] — list every visible difference,
+ranked by visual impact. The downstream goal: [WHAT YOU'RE TRYING TO MATCH].
+</task>
+
+<context>
+- Images: [absolute paths to both files]
+- Target / reference: which image is the "correct" version to match
+- Focus area (optional): if other reviewers are running in parallel, what
+  this reviewer should specialize in (e.g., color, typography, layout, content)
+</context>
+
+<rules>
+1. **MEASURE, DO NOT ESTIMATE.** For any size-related comparison (font height,
+   bar thickness, row spacing, label position, margin width):
+   - Open BOTH images with PIL.Image
+   - Measure pixel dimensions of comparable elements
+   - Normalize by chart width or another invariant scale reference
+   - Report the measured RATIO ("reference text is 2.92× larger than OURS at 0.66%
+     vs 1.91% of chart width"), not a qualitative comparison ("looks bigger")
+   - If the images have different native DPIs this is critical — raw pixel
+     counts mislead
+2. For COLOR comparisons: sample multiple pixels from each colored region and
+   report hex values, not perceptual descriptions. Don't estimate hex by eye.
+3. For LAYOUT comparisons: report bounding-box coordinates of named elements.
+4. For TYPOGRAPHY: measure pixel character heights AND report as % of image
+   width so the ratio is DPI-invariant.
+5. Categorize findings: MUST-FIX (high visual impact, easy to address) /
+   COSMETIC (visible but lower priority) / DELIBERATE-DIVERGENCE (intentional
+   difference, do not fix).
+6. Concise output. Group related findings. Don't repeat measurements verbatim.
+7. Your output will be synthesized with parallel reviewers.
+</rules>
+
+<report-format>
+Measured findings:
+- [MUST-FIX/COSMETIC/DELIBERATE] [element] [OURS measurement] vs [REF measurement] → [ratio or delta]
+Qualitative findings (only after the measured ones):
+- [MUST-FIX/COSMETIC] [element] [description]
+Assessment: [1-2 sentence overall — is it close enough or not]
+</report-format>
+```
+
+**Orchestrator post-conditions:** After receiving Visual Reviewer reports, verify by re-measuring at least one MUST-FIX finding yourself before acting on it. Visual reviewers can hallucinate "measurements" that they actually eyeballed — confirm at least the highest-stakes one with a real PIL call.
 
 ---
 
@@ -283,6 +346,30 @@ Notes: [Process notes — what surprised you, what felt most alive, what could b
 
 ---
 
+## 8. Orchestrator Phase-Loop (session-scale execution)
+
+**When to use:** Multi-phase execution sessions where the principal steers between phases — an Opus orchestrator agent executes each phase; the main session coordinates, verifies, and relays to the principal at phase boundaries.
+**Field-tested:** Yes — promoted after a second sighting across two different long-running projects, one using a single persistent orchestrator across 5 phases via message continuation, the other using a fresh orchestrator per phase.
+
+Two variants, choose by context need:
+- **Persistent agent + message continuation** — phases build on shared artifacts/context (cheaper, orchestrator keeps its own history).
+- **Fresh agent per phase** — phases are independent or context hygiene matters more than continuity.
+
+Dispatch structure (per phase):
+- Numbered deliverables (D1..Dn) with per-deliverable acceptance criteria; sequenced so cheap/blocking items run first.
+- Findings written to a per-phase report file AS THE AGENT GOES (survives agent death/compaction).
+- Final report capped (≤400-500 words) with a mandated per-deliverable Status format.
+- "Numbers you report must come from runs you executed" + BLOCKED-is-better-than-wrong.
+- Explicit NO-list: no git ops, no deploys, no edits outside named files — ship actions stay with the principal.
+
+Coordinator (main session) duties:
+- Verify report claims against disk artifacts before relaying (row counts, timestamps, spot numbers).
+- Treat-as-adversary on findings; relay to the principal in plain language at each phase boundary.
+- If the agent has background children: on any notification or unexpected silence, check the child's output on disk and manually resume it — auto-re-invocation on child exit is not guaranteed.
+- Independent spec-blind review before any production deploy.
+
+---
+
 ## Orchestrator Checklist
 
 **Before dispatching:**
@@ -291,6 +378,7 @@ Notes: [Process notes — what surprised you, what felt most alive, what could b
 - [ ] **Context is pasted, not referenced.** Don't say "read CLAUDE.md" — paste the relevant sections.
 - [ ] **Model is appropriate.** Sonnet for execution, Opus for judgment, Haiku for volume.
 - [ ] **Report format is included in the prompt.** Don't assume the agent knows the format — paste it.
+- [ ] **VISUAL COMPARISON GATE.** If the agent prompt contains any of: `compare`, `diff`, `pixel`, `visual`, `chart`, `screenshot`, `image`, `layout`, `before/after`, `like-for-like` — STOP and check that §3a Visual Reviewer measurement language is in the prompt. The MEASURE-DON'T-ESTIMATE rule fails silently when the orchestrator forgets to paste it; the rule existing in this file is not enough — it has to be IN the agent's prompt. (Failure mode caught once already: 4 reviewers missed a 2.92× text-size gap because the prompt said "be thorough" instead of "use PIL".)
 
 **After receiving the result:**
 

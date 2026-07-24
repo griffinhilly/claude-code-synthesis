@@ -4,6 +4,7 @@ Update each file as needed. Skip files with no relevant changes. Incorporate any
 
 ## PLAN.md
 - Refresh the `## Current State` section at top (what's in flight, blockers, next session)
+- **Prune-on-wrap (mandatory):** appending a rich session bullet during active work is fine — the newest bullet is the session handoff and the session-start disk-vs-PLAN reconciliation surface. But at every `/wrapup`, sweep bullets no longer needed to RESUME work into the project's archive file (`PLAN_current_state_archive_<YYYY-MM>.md`, create if absent, newest first) and keep Current State at roughly 5 bullets. The failure mode this prevents: retention without expiry (one project accumulated roughly 14k words of session log in Current State before a reviewer flagged it). Replace-always was considered and rejected — rich recent bullets powered stale-work rescues on at least two occasions.
 - Mark completed items
 - Add new items discovered during work
 - Update timeline if relevant

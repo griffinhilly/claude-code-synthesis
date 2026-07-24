@@ -1,19 +1,20 @@
 # Claude Code Workflow
 
-A complete, opinionated Claude Code workflow. 19 skills, 7 hooks, 13 guides, and an operating model you can install in one command.
+A complete, opinionated Claude Code workflow. 23 skills, 10 hooks, 29 guides, 8 tools, a routing table, and an operating model you can install in one command.
 
-**This isn't a tutorial or a library.** It's a working configuration -- built over months of daily use -- that you can copy into your own setup and adapt.
+**This isn't a tutorial or a library.** It's a working configuration -- built over a year of daily use -- that you can copy into your own setup and adapt.
 
-## What's New in v2
+## What's New in v3
 
-v1 shipped the operating model (`CLAUDE.md`) and a handful of guides. v2 ships the full working system:
+v2 (April 2026) shipped the full skill/hook/guide system. v3 ships three months of what daily use did to it -- including the parts that reversed:
 
-- **19 skills** -- slash commands covering the entire session lifecycle, from planning through implementation to session close
-- **7 hooks** -- PreToolUse and PostCompact hooks for security, observability, context recovery, and epistemic guardrails
-- **2 tools** -- Python utilities for cross-session search and skill usage analytics
-- **3 new guides** -- pipeline diagnostics, learning from reference repos, and a deep comparison of Superpowers / gstack / Compound Engineering
-- **Updated CLAUDE.md** -- 10+ new behavioral rules including structured debugging, subagent validation, confidence-scored planning, three-fix escalation, and knowledge compounding
-- **Source analysis** -- `guides/reference-repo-comparison.md` maps exactly what this repo adopted from each major framework, what it skipped, and why
+- **Usage honesty.** The skill-usage log now has enough data to say what actually gets used (see [What Actually Gets Used](#what-actually-gets-used) below). The verdict reshaped this release: session-lifecycle ritual and dialectic review carry the workflow; many of the specialist one-shot skills mostly don't get invoked.
+- **RESOLVER.md** -- a routing table mapping task descriptions to skill invocations and content types to filing destinations. The single biggest structural addition since v2: with 20+ skills, "what should I invoke" and "where does this fact go" became decisions worth making deterministic. Includes a formal ≥2-sightings promotion gate for candidate rules.
+- **A reversed rule.** v2's Scope Discipline told Claude to push back on ambitious plans and suggest smaller increments. Real usage showed the agent's underscoping instinct is the bigger failure mode. The section now defaults to continuation -- and documents its own reversal, because a workflow repo that only ships rules that survived unchanged is lying by omission.
+- **Mid-Session Hygiene** -- new CLAUDE.md section: `/rewind` over appended corrections, `/clear` at task-type boundaries, steered `/compact` at ~60% instead of riding into auto-compaction, and diagnose-before-abandoning for off-track sessions.
+- **16 new guides** -- including hook self-testing, verify-before-deploy, data-before-code, subagent severity calibration, prose de-AI-ism, native HTML/CSS charts, and pre-publish critical response. Several encode rules promoted only after the same failure was sighted twice or more in real sessions.
+- **4 new skills** -- `/distill` (extract rules from your corrections), `/sessions` (find/resume past sessions), `/check-resolvable` (audit orphaned config), `/autoresearch` (bounded autonomous optimization). Plus `--council` mode for `/dialectic-review` and a deterministic scope gate in `/plan-task`.
+- **Hook bugfix release + test harness.** An adversarial review found the v2 hooks had silent no-op failure modes (bare `python` on python3-only systems), bypasses (chained commands after `git commit`), and false positives (`git push origin my-feature-branch` matched a `-f` pattern). All fixed, with a 20-case test harness (`hooks/test-hooks.sh`) so regressions can't ship silently again. The full defect list is honest history: nearly every bug would have been caught by the repo's own doctrine applied to itself.
 
 ## Quick Start
 
@@ -28,22 +29,26 @@ Edit the `Platform Notes` and `Interaction Style` sections to match your setup. 
 git clone https://github.com/griffinhilly/claude-code-synthesis /tmp/claude-workflow
 bash /tmp/claude-workflow/deploy.sh
 ```
-`deploy.sh` copies `CLAUDE.md`, `skills/`, `commands/`, `hooks/`, `guides/`, and `tools/` into `~/.claude/`, and — critically — registers the hooks in `~/.claude/settings.json`. Hooks only fire if registered there; copying the files alone does nothing. It asks before overwriting an existing CLAUDE.md, and if you already have a settings.json it prints the hook block for you to merge by hand.
+`deploy.sh` copies `CLAUDE.md`, `RESOLVER.md`, `skills/`, `commands/`, `hooks/`, `guides/`, and `tools/` into `~/.claude/`, backs up any of your files it would overwrite (to `~/.claude/.deploy-backup-<timestamp>/`), and — critically — registers the hooks in `~/.claude/settings.json`. Hooks only fire if registered there; copying the files alone does nothing. It asks before overwriting an existing CLAUDE.md, and if you already have a settings.json it prints the hook block for you to merge by hand.
 
 Prefer manual installation? Copy the five directories the same way (`mkdir -p ~/.claude/skills && cp -r /tmp/claude-workflow/skills/* ~/.claude/skills/`, and likewise for `commands`, `hooks`, `guides`, `tools`), then register the hooks in `~/.claude/settings.json` using the template inside `deploy.sh`.
 
 **Tier 3: Let Claude do it.**
 Tell Claude Code: *"Clone https://github.com/griffinhilly/claude-code-synthesis and set up my config based on it."*
 
-**New to all of this? Start with three.** After installing, use just `/plan-task`, `/implement`, and `/wrapup` for your first week, and add more as the workflow proves itself. The full set below is a menu, not a curriculum.
+**New to all of this? Start with three.** After installing, use just `/plan-task`, `/dialectic-review`, and `/wrapup` for your first week, and add more as the workflow proves itself. (Our own usage log says those — plus the doctrine in CLAUDE.md — carry most of the value; see [What Actually Gets Used](#what-actually-gets-used).) The full set below is a menu, not a curriculum.
 
 ## What's In Here
 
 ### `CLAUDE.md` -- The Operating Model
 
-The behavioral contract that governs every session. Defines leverage doctrine (human decides, Claude executes), plan-first protocol, scope discipline, agent principles, dialectic reviews, implementation behavior, security safeguards, the COMP documentation system, and workflow evolution rules. See the [Key Ideas](#key-ideas-worth-highlighting) section below for highlights.
+The behavioral contract that governs every session. Defines leverage doctrine (human decides, Claude executes), plan-first protocol, scope discipline, agent principles, dialectic reviews, implementation behavior, mid-session hygiene, security safeguards, the COMP documentation system, and workflow evolution rules. See the [Key Ideas](#key-ideas-worth-highlighting) section below for highlights.
 
-### `skills/` -- 19 Slash Commands
+### `RESOLVER.md` -- The Routing Table
+
+Task descriptions → skill invocations; content types → filing destinations. Consulted before invoking a skill on an ambiguous task or writing any cross-project memory. Also holds the when-to-make-a-new-skill checklist and the ≥2-sightings promotion gate that keeps single-occurrence "lessons" from accumulating as permanent doctrine.
+
+### `skills/` -- 23 Slash Commands
 
 Skills live in `skills/<name>/SKILL.md` directories (installed to `~/.claude/skills/`) and encode multi-step workflows as single invocations. They range from lightweight wrappers (brainstorm, premortem) to complex multi-agent protocols (dialectic-review, debug, bug-hunt).
 
@@ -61,13 +66,17 @@ Skills live in `skills/<name>/SKILL.md` directories (installed to `~/.claude/ski
 | `/wrapup` | Full session closer: COMP updates + skill health check + bloat audit + session summary. |
 | `/retro` | Periodic retrospective. Scopes: session, weekly, or project. Turns patterns into rules. |
 | `/learn` | Capture structured learnings (gotcha, pattern, decision, bug-fix) as JSONL. Cross-project searchable. |
-| `/dialectic-review` | Multi-agent adversarial analysis. 4 modes: review, ideate, tradeoff, premortem. Configurable agents, expert lenses, and optional hostile auditor (`--audit`). |
+| `/dialectic-review` | Multi-agent adversarial analysis. 5 modes: review, ideate, tradeoff, premortem, council (5 distinct advisor biases + anonymous peer review + chairman synthesis). Configurable agents, expert lenses, and optional hostile auditor (`--audit`). |
 | `/bug-hunt` | Three-agent adversarial bug finder. Hunter overclaims, Skeptic disproves, Referee arbitrates. Scoring incentives force each role to behave honestly. |
 | `/brainstorm` | Generate a wide field of ideas, then pressure-test them. Five generators diverge, challengers prune, synthesizers rank what survives. |
 | `/premortem` | Assume the plan failed, then explain why. Pessimists diagnose failure, optimists rebut, a risk assessor weighs which failures are real. |
 | `/red-team` | Adversarial stress-test with hostile auditor. Critics attack, defender rebuts, referee judges, then a 4th agent attacks the synthesis itself. `--audit` on by default. |
 | `/tradeoff` | Compare 2+ options with dedicated advocates, counter-advocates who challenge every position, and a decisive referee. |
 | `/socrates` | Socratic questioning to stress-test a philosophical framework or thesis. |
+| `/distill` | Diff an agent draft against the user-corrected final, extract patterns from the corrections, propose candidate rules. The manual form of the self-improving-skill loop. |
+| `/sessions` | List recent sessions with IDs, descriptions, and turn counts. For finding and resuming past or crashed sessions. |
+| `/check-resolvable` | Audit `~/.claude/` for orphans — skills, guides, and tools that exist on disk but are unreachable from CLAUDE.md / RESOLVER.md. |
+| `/autoresearch` | Bounded autonomous optimization loop: numeric eval + wall-clock budget + git-branch commits + keep-or-revert. Agent iterates on code; human iterates on the prompt. |
 
 ### `commands/` -- 7 Workflow Commands
 
@@ -83,7 +92,7 @@ Commands are user-invocable slash commands that handle session lifecycle and pro
 | `/prune` | Audit and trim auto-loaded files (CLAUDE.md, MEMORY.md) for context bloat. |
 | `/overnight` | Set up overnight autonomous batch runs with retry and checkpoint logic. |
 
-### `hooks/` -- 7 Event Hooks
+### `hooks/` -- 10 Event Hooks
 
 | Hook | Trigger | What It Does |
 |------|---------|-------------|
@@ -94,15 +103,25 @@ Commands are user-invocable slash commands that handle session lifecycle and pro
 | `log-skill-usage.sh` | PreToolUse (Skill) | Tracks skill invocations with session IDs to a log file for usage analytics |
 | `post-compact-reminder.sh` | PostCompact | Re-injects session context and Decision Quality Gates after compaction |
 | `epistemic-guard.sh` | PreToolUse (Write/Edit) | Warns when content contains unverified epistemic claims ("should work", "probably fine") |
+| `log-unwrapped-session.sh` | SessionEnd | Flags sessions that end with a dirty git tree, so the next `/start` can reconcile unrecorded work |
+| `warn-skill-md-too-long.sh` | PostToolUse (Write/Edit) | Warns when a SKILL.md exceeds 150 lines — skills should stay lean, with depth in referenced files |
+| `check-new-file-index.sh` | PostToolUse (Write) | Reminds to update the relevant index when a new file is created |
 
-### `tools/` -- 2 Python Utilities
+Every hook is covered by `hooks/test-hooks.sh`, a 20-case harness that feeds each hook the same JSON the Claude Code harness would send and asserts the exact allow/block exit code. Run it after any hook edit (see `guides/hook-self-test.md`).
+
+### `tools/` -- 8 Utilities
 
 | Tool | What It Does |
 |------|-------------|
 | `session-search.py` | Cross-session keyword search over conversation history. Supports `--project`, `--days`, `--role`, `--max` filters. |
 | `skill-usage-report.py` | Skill usage analytics: invocation counts, trends, dead skill detection. Reads the log produced by `log-skill-usage.sh`. |
+| `check-resolvable.py` | Deterministic reachability scan: finds skills, guides, and tools unreachable from CLAUDE.md / RESOLVER.md. Backs the `/check-resolvable` skill. |
+| `skill-trigger-evals.py` | Eval harness for skill routing: checks that test-case task descriptions resolve to real skills (cases in `skill-trigger-evals.jsonl`). |
+| `mock-finder.py` | Scans for stub/TODO/placeholder code debt an agent left behind. |
+| `heartbeat.py` | Silent-by-default monitoring: parses a HEARTBEAT.md checklist, emits only anomalies. |
+| `archive-transcripts.sh` | Idempotent daily archival of session transcripts before Claude Code's retention window prunes them. |
 
-### `guides/` -- 13 On-Demand Reference Docs
+### `guides/` -- 29 On-Demand Reference Docs
 
 Guides load on-demand when triggered by specific situations. This keeps `CLAUDE.md` lean while making deep knowledge available when needed.
 
@@ -119,12 +138,48 @@ Guides load on-demand when triggered by specific situations. This keeps `CLAUDE.
 | `shell-rules.md` | Shell command conventions (flag quoting, HEREDOCs) |
 | `prefer-apis.md` | Fetching data from websites (API over scraping) |
 | `postgres-batching.md` | Exploratory database queries needing repeated approval |
-| `claude-code-features.md` | Underutilized native features (`--bare`, `/batch`, `--add-dir`, session forking) |
 | `event-driven-agents.md` | Bash pre-check gates, event-driven agent invocation, autonomous loop safety |
+| `claude-code-primitives.md` | The session-management moves the workflow depends on: `/rewind`, `/clear`, steered `/compact`, `!` shell prefix |
+| `hook-self-test.md` | Testing hook scripts before shipping them (feed JSON, assert exit codes) |
+| `verify-before-deploy.md` | Verifying a batch of agent-generated content before the next workflow step |
+| `data-before-code.md` | When generated-content skew means the upstream data set is the gap, not the code |
+| `subagent-severity-judgments.md` | Calibrating subagent "ship-blocker" / "P0" severity claims before acting on them |
+| `calibration-equivocation.md` | The "calibrate/tune/validate" equivocation trap in Bayesian / IRT / econometric plans |
+| `pre-commit-rule-audit.md` | Auditing decision rules pre-committed on forthcoming data (bins, reversal conditions, defaults) |
+| `pre-publish-critical-response.md` | Adversarial read before publishing for an external audience |
+| `prose-de-aiism.md` | Removing LLM voice from user-facing prose, as a named final pass |
+| `native-html-css-charts.md` | Professional-looking charts via HTML/CSS + headless Chrome instead of matplotlib |
+| `chart-qa.md` | Matplotlib overlap/legibility QA before shipping a chart |
+| `image-asset-audit.md` | Measuring assets and rendered geometry instead of eyeballing layout |
+| `headless-chrome-qa.md` | Verifying web UI headlessly when a browser extension isn't available |
+| `mcp-windows-debugging.md` | MCP servers on Windows that won't start or connect-but-sit-inert |
+| `windows-paths.md` | Constructing file paths with usernames and system directories on Windows |
+| `unavailable-source-fallback.md` | Archive-snapshot fallback (with mandatory validation) when a data host is down or throttling |
+| `claude-code-features.md` | Superseded — a cautionary stub about why hand-mirroring a fast-moving product's feature list fails |
 
 ### `examples/data-pipeline/` -- Working Example
 
 A complete data enrichment pipeline demonstrating these patterns in action: step-based pipeline runner with dry-run and skip flags, LLM batch categorization with taxonomy normalization, verify-and-merge cycles, and semantic search over enriched data.
+
+## What Actually Gets Used
+
+This repo ships a `log-skill-usage.sh` hook precisely so this question has an answer. Four months of logged invocations (165 entries, April–July 2026) from the config this repo is a snapshot of:
+
+| Tier | Skills | Share |
+|------|--------|-------|
+| The ritual | `/wrapup` (~70), `/dialectic-review` (~46) | ~70% of all invocations |
+| Regular | `/plan-task` (~10), `/prune`, `/comp` | ~10% |
+| Occasional | `/research`, `/finalize`, `/retro`, `/schedule`, and Claude Code built-ins | ~20% |
+| Rarely/never logged | `/bug-hunt`, `/red-team`, `/brainstorm`, `/premortem`, `/tradeoff`, `/socrates`, `/ship`, `/verify`, `/implement`, `/learn`, `/debug` | ~0% |
+
+Honest readings of that last row:
+
+1. **Session lifecycle + adversarial review are the workflow.** The two dominant skills are the ritual bookend (`/wrapup` compounds knowledge into COMP files every session) and the decision stress-tester. If you install only two skills, install those.
+2. **Wrappers get absorbed.** `/premortem`, `/tradeoff`, `/red-team`, `/brainstorm` are thin wrappers around `/dialectic-review` modes — usage flows to the parent skill. That's the design working, not failing.
+3. **Some zeros are real.** `/ship`, `/verify`, `/implement`, `/learn` genuinely get skipped: their behaviors partially migrated into CLAUDE.md doctrine (verify-before-done, operationalize-every-fix) that fires without explicit invocation. A skill whose content graduates into always-on doctrine is a success that looks like a failure in the log.
+4. **Measurement has holes.** The hook only logs invocations routed through the Skill tool; auto-triggered skills and some earlier months aren't captured. Treat the log as strong signal, not census.
+
+The meta-lesson we'd offer anyone building a big config: **instrument first, prune second.** We'd have guessed wrong about half of this table.
 
 ## The COMP System
 
@@ -168,6 +223,12 @@ The key insight: separate *behavioral instructions* (CLAUDE.md) from *human orie
 **Human gates in pipelines.** Data enrichment workflows aren't fully automatable. Making the interruptible workflow explicit -- with named steps, skip flags, and resume points -- is better than pretending it's a straight-through pipeline.
 
 **The virtuous circle.** Use your tools to improve your tools. Extract patterns from past sessions into skills or guides, apply them to new projects, refine based on results. The workflow improves itself through use.
+
+**The promotion gate.** A lesson observed once goes to `candidate-rules.md`, not to permanent doctrine. Only a second real sighting promotes it (bug-classes, security items, and explicit user requests skip the gate). This is the difference between a CLAUDE.md that compounds and one that silts up with rules that never fire. Several v3 rules carry their promotion history inline — "promoted after the second real incident of X" — as evidence they earned their place.
+
+**Latent vs deterministic.** Every workflow step is either model judgment (synthesis, fuzzy classification) or code (counting, joining, thresholding). Putting deterministic work in latent space is the most common agent-design mistake. Wherever a spec names a number, that step should be code. RESOLVER.md itself is this principle applied to skill routing.
+
+**Mid-session hygiene.** Context is a resource you manage mid-flight, not just at session boundaries: `/rewind` failed approaches out of context instead of appending corrections, `/clear` at task-type boundaries, steer `/compact` manually at ~60% rather than riding into auto-compaction at ~90%.
 
 ## Recommended Workflow
 

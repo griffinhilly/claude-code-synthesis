@@ -26,7 +26,11 @@ If no arguments, review whatever was most recently implemented in the conversati
 ### Step 2: Launch Review
 Read `~/.claude/skills/review/review-dimensions.md` for what to check based on the type of work (code, data, writing).
 
-Launch the review using a fresh-context subagent (use the `code-reviewer` agent persona for code). The reviewer should NOT share the implementer's assumptions.
+Launch the review using a fresh-context subagent (use the `code-reviewer` agent persona for code). Apply the strengthened review discipline (per CLAUDE.md "Fresh eyes for review"):
+
+1. **Spec-blind:** Do NOT include the original spec, plan, or coder context in the reviewer's prompt. Pass the diff (or the artifact) and have the reviewer reason backward. The reviewer's lack of spec-knowledge is a feature — it surfaces unstated assumptions the spec hid.
+2. **Multiple uncorrelated passes:** Launch the reviewer 2-3 times in parallel with the same prompt. Union their findings. If the same model produces overlapping findings, that's signal; if they find different things, the union is the value.
+3. **Treat-as-adversary:** Frame the reviewer's findings as questions about the work, not defects to auto-fix. Pass each finding through "is this actually wrong, or is it the reviewer pattern-matching without context?" Keep the credible ones; reject the rest with reasoning.
 
 ### Step 3: Present Findings
 Read `~/.claude/skills/review/output-format.md` for how to organize findings.

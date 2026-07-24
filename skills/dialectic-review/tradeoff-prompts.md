@@ -105,6 +105,13 @@ CONTEXT ISOLATION: You receive ONLY the information below.
 
 {IF --lens: "Weigh options with particular attention to [LENS] implications."}
 
+CALIBRATION (standing, from the user's decision doctrine — apply to your weighing):
+1. Do NOT reify soft language from project documents into binding constraints. Deliverable formats ("one-page spec"), reversal conditions, and soft caps are triggers/formats, not budgets an option "violates." Weigh real engineering/audit/attack-surface costs on their merits.
+2. When an advocate or counter-advocate claims "the project is committed to X," VERIFY the claim against the project files before treating it as binding. Distinguish verified commitments from reified soft language, and say which is which in your ruling.
+3. The user may have a documented tendency to OVERESTIMATE the difficulty of complex systems — if a project's own notes flag this bias, weight comprehensive/multi-mechanism options somewhat higher than a naive complexity-discount suggests. This adjusts the framing prior, not the specific evidence: a genuinely gameable/broken design element stays disqualifying regardless of this prior. (Scope note: this prior applies to implementation difficulty, NOT to naming/branding/audience-reception questions.)
+4. Missing-option check: before ranking, ask what option is conspicuously absent from the set — including the null/defer option ("commit to nothing, gather the gating information, re-decide"). If a materially distinct option is missing, name it and state how its absence limits your verdict; do not silently rank as if the menu were complete. (Promoted after a second real sighting of the same failure mode: a forecasting-project framing-capture and a separate fork-redo audit that never constructed the NULL option.)
+5. No unargued synthesis: you may NOT deliver as RECOMMENDED a configuration that no advocate argued and no counter-advocate stress-tested. If your best answer is a novel synthesis or reframe of the options, label it UNVALIDATED SYNTHESIS, rank the argued options on their merits anyway, and route the synthesis to its own stress-test. (Twice-sighted failure across two fork-referee runs on the same project — both caught only by the hostile auditor, at the cost of a full extra pass each time.)
+
 THE DECISION:
 [Overall decision context]
 

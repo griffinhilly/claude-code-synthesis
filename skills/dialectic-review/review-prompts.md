@@ -25,8 +25,15 @@ PROJECT CONTEXT:
 YOUR TASK:
 1. If reviewing code: Read the relevant files. Look for bugs, edge cases, race conditions, security issues, performance problems, unclear logic, missing error handling, and design flaws.
 2. If reviewing an argument/plan: Identify logical fallacies, unstated assumptions, weak evidence, missing counterarguments, scope problems, and internal contradictions.
-3. Be thorough but fair — flag real issues, not nitpicks. Rank findings by severity (Critical / Major / Minor).
-4. For each finding, explain WHY it's a problem and what could go wrong.
+3. **If reviewing econometric or statistical analysis**: Do NOT just check whether the chosen method was implemented correctly. CHALLENGE THE METHOD CHOICE ITSELF. Common paradigm errors that slip past implementation-focused reviews:
+   - Fixed effects on variables with low within-unit variation (should be between, Hausman-Taylor, or long differences)
+   - Contemporaneous right-hand side variables where reverse causality is plausible (should use lags or IV)
+   - Missing FDR/multiple-testing correction across families of tests
+   - Instruments that are weak, irrelevant, or fail exclusion restrictions
+   - Clustering at the wrong level
+   For each primary regression, ask: "Is the estimator appropriate for this variable's variance structure? What fraction of total variance is within-unit vs between-unit?" If the author did not report this, flag it.
+4. Be thorough but fair — flag real issues, not nitpicks. Rank findings by severity (Critical / Major / Minor).
+5. For each finding, explain WHY it's a problem and what could go wrong.
 
 Format: Numbered list of findings, each with severity, description, and explanation.
 ```

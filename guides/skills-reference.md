@@ -1,6 +1,6 @@
 # Skills Reference
 
-> **Note:** Everything below ships in this repo — skills as `skills/<name>/SKILL.md` directories (installed to `~/.claude/skills/`), workflow commands as `commands/*.md` files (installed to `~/.claude/commands/`). Start with 2-3 (e.g., `/plan-task`, `/wrapup`, `/implement`) and add more as your workflow matures.
+> **Note:** Everything below ships in this repo — skills as `skills/<name>/SKILL.md` directories (installed to `~/.claude/skills/`), workflow commands as `commands/*.md` files (installed to `~/.claude/commands/`). Start with 2-3 (e.g., `/plan-task`, `/dialectic-review`, `/wrapup` — the ones our usage log says carry the workflow) and add more as your workflow matures. For task→skill routing, see `~/.claude/RESOLVER.md`.
 
 ## Workflow Skills
 
@@ -18,7 +18,7 @@ Skills in this table have corresponding directories in `skills/`.
 | `/comp [directory]` | Create or update all 4 COMP files for a directory. |
 | `/wrapup [flags]` | Session closer. Chains COMP updates + bloat check + session summary. Supports `noprune`, `prune` (full). |
 | `/retro [scope]` | Periodic retrospective. Assesses what went well, what went poorly, patterns, and actionable suggestions. Scopes: `session` (default), `weekly`, `project <name>`. |
-| `/dialectic-review [flags] [focus]` | Multi-agent dialectic with 4 modes: `review` (Critics -> Defenders -> Referees), `--ideate` (Generators -> Challengers -> Synthesizers), `--tradeoff` (Advocates -> Counter-Advocates -> Referee), `--premortem` (Pessimists -> Optimists -> Risk Assessors). Supports `--agents X-Y-Z`, `--lens <expert>`, `--test-first`, `--audit` (hostile auditor), `--no-audit`. |
+| `/dialectic-review [flags] [focus]` | Multi-agent dialectic with 5 modes: `review` (Critics -> Defenders -> Referees), `--ideate` (Generators -> Challengers -> Synthesizers), `--tradeoff` (Advocates -> Counter-Advocates -> Referee), `--premortem` (Pessimists -> Optimists -> Risk Assessors), `--council` (5 distinct advisor biases -> anonymous peer review -> chairman synthesis). Supports `--agents X-Y-Z`, `--lens <expert>`, `--test-first`, `--audit` (hostile auditor), `--no-audit`. |
 | `/brainstorm <topic>` | Generate a wide field of ideas, then pressure-test them. Five generators diverge, challengers prune, synthesizers rank what survives. |
 | `/premortem [plan]` | Assume the plan failed, then explain why. Pessimists diagnose failure, optimists rebut, a risk assessor weighs which failures are real. |
 | `/red-team [target]` | Adversarial stress-test with hostile auditor. Critics attack, defender rebuts, referee judges, then a 4th agent attacks the synthesis itself. `--audit` on by default; pass `--no-audit` for plain review. |
@@ -27,6 +27,10 @@ Skills in this table have corresponding directories in `skills/`.
 | `/socrates <thesis>` | Socratic debate session to stress-test a philosophical framework or thesis. |
 | `/debug [issue]` | Structured debugging with mandatory evidence gathering before any fix attempt. 4-phase protocol (Observe -> Hypothesize -> Reproduce -> Fix) with hard gates between phases. |
 | `/learn <type> <lesson>` | Capture structured learnings (gotcha, pattern, decision, bug-fix) as JSONL per project. Cross-project searchable. |
+| `/distill <draft> <final>` | Diff an agent draft against the user-corrected final; extract correction patterns; propose candidate rules. |
+| `/sessions` | List recent sessions (IDs, descriptions, turn counts) for resume/recovery of past or crashed sessions. |
+| `/check-resolvable` | Audit `~/.claude/` for orphaned skills/guides/tools unreachable from CLAUDE.md / RESOLVER.md. |
+| `/autoresearch <metric> <budget>` | Bounded autonomous optimization loop with rollback: numeric eval, wall-clock budget, git-branch commits, keep-or-revert. |
 
 ## Workflow Commands
 

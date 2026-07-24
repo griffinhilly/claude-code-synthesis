@@ -1,0 +1,35 @@
+{"input": "let's plan this before building", "expected_skill": "plan-task", "category": "lifecycle"}
+{"input": "I want to figure out an approach before I write code", "expected_skill": "plan-task", "category": "lifecycle"}
+{"input": "design this carefully — quiz me on what's missing", "expected_skill": "plan-task", "expected_flags": ["--quiz-me"], "category": "lifecycle"}
+{"input": "let's wrap up the session", "expected_skill": "wrapup", "category": "lifecycle"}
+{"input": "okay I'm done for now, finalize", "expected_skill": "finalize", "category": "lifecycle"}
+{"input": "start a session for the analytics project", "expected_skill": "start", "category": "lifecycle"}
+{"input": "implement the plan we just wrote", "expected_skill": "implement", "category": "lifecycle"}
+{"input": "verify these outputs are right", "expected_skill": "verify", "category": "lifecycle"}
+{"input": "review what I just did", "expected_skill": "review", "category": "lifecycle"}
+{"input": "this is ready to commit, do the pre-flight check", "expected_skill": "ship", "category": "lifecycle"}
+{"input": "context is getting heavy, clean it up", "expected_skill": "prune", "category": "lifecycle"}
+{"input": "weigh these three options for me", "expected_skill": "dialectic-review", "expected_flags": ["--tradeoff"], "category": "decision"}
+{"input": "before I commit, premortem this", "expected_skill": "dialectic-review", "expected_flags": ["--premortem"], "category": "decision"}
+{"input": "brainstorm new approaches to this problem", "expected_skill": "dialectic-review", "expected_flags": ["--ideate"], "category": "decision"}
+{"input": "I want five different thinking styles to evaluate this design", "expected_skill": "dialectic-review", "expected_flags": ["--council"], "category": "decision"}
+{"input": "find every bug in this code", "expected_skill": "bug-hunt", "category": "quality"}
+{"input": "this is broken, debug it", "expected_skill": "debug", "category": "quality"}
+{"input": "the state machine is acting weird — slow down and trace state per step", "expected_skill": "debug", "expected_flags": ["--hand-compute"], "category": "quality"}
+{"input": "simplify this code — is it earning its complexity?", "expected_skill": "simplify", "category": "quality"}
+{"input": "go research how X works", "expected_skill": "research", "category": "learning"}
+{"input": "capture this learning so I don't forget", "expected_skill": "learn", "category": "learning"}
+{"input": "I want to look back at what worked and what didn't", "expected_skill": "retro", "category": "learning"}
+{"input": "optimize this model's R² by tomorrow morning", "expected_skill": "autoresearch", "category": "learning"}
+{"input": "Claude wrote a draft, I edited it heavily — what patterns am I correcting for?", "expected_skill": "distill", "category": "learning"}
+{"input": "update the COMP files for this project", "expected_skill": "comp", "category": "maintenance"}
+{"input": "audit reachability — find orphan skills", "expected_skill": "check-resolvable", "category": "maintenance"}
+{"input": "schedule a recurring check every hour", "expected_skill": "loop", "category": "maintenance"}
+{"input": "set up a cron-style remote agent to run nightly", "expected_skill": "schedule", "category": "maintenance"}
+{"input": "do this work overnight while I sleep", "expected_skill": "overnight", "category": "maintenance"}
+{"input": "format this prompt and send it", "expected_skill": "prompt", "category": "tooling"}
+{"input": "format this prompt but don't send", "expected_skill": "prompt-only", "category": "tooling"}
+{"input": "improve this prompt before I send it", "expected_skill": "prompt-refine", "category": "tooling"}
+{"input": "set up Telegram for incoming messages", "expected_skill": "telegram:configure", "category": "integration"}
+{"input": "approve a pairing for the Telegram channel", "expected_skill": "telegram:access", "category": "integration"}
+{"input": "add this hook to settings.json", "expected_skill": "update-config", "category": "integration"}

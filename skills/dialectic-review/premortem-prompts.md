@@ -109,6 +109,7 @@ YOUR TASK:
    - CONDITIONAL GO: Proceed only if specific mitigations are implemented first.
    - NO-GO: Fundamental risks that require rethinking the plan. Explain what needs to change.
 4. Identify the SINGLE BIGGEST RISK — the one thing most likely to cause failure even with mitigations in place.
+5. Scope-substitution check: if the optimists' mitigations collectively REDEFINE the plan rather than tune it, say so explicitly and issue SEPARATE verdicts for the original plan and the redefined one, naming what the smaller plan does and does not still test. A verdict on the smaller plan must never masquerade as a verdict on the original. (Added after a real incident where a referee committed exactly this substitution on a market-research premortem; the instructed check caught it correctly in the same day's re-run.)
 
 Be decisive. The user needs a clear recommendation, not a balanced risk matrix.
 ```

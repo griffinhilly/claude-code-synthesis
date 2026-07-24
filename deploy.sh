@@ -48,11 +48,39 @@ if [ "${SKIP_CLAUDE_MD:-0}" != "1" ]; then
     echo "  Installed CLAUDE.md"
 fi
 
+# ── 3b. Copy RESOLVER.md (routing table) ─────────────────────────────────────
+
+if [ -f "$TARGET_DIR/RESOLVER.md" ]; then
+    echo "  Keeping existing RESOLVER.md (repo version at $REPO_DIR/RESOLVER.md if you want to merge)"
+else
+    cp "$REPO_DIR/RESOLVER.md" "$TARGET_DIR/RESOLVER.md"
+    echo "  Installed RESOLVER.md"
+fi
+
 # ── 4. Merge directories (copy contents without deleting existing files) ─────
 
 DIRS="skills commands hooks guides tools"
 
-echo "  Note: same-named files in these directories are overwritten (customize under different filenames)."
+# Back up any files we're about to overwrite so a customized skill/hook/guide
+# is never silently clobbered.
+BACKUP_DIR="$TARGET_DIR/.deploy-backup-$(date +%Y%m%d-%H%M%S)"
+BACKED_UP=0
+for dir in $DIRS; do
+    if [ -d "$REPO_DIR/$dir" ] && [ -d "$TARGET_DIR/$dir" ]; then
+        while IFS= read -r f; do
+            rel="${f#"$REPO_DIR/"}"
+            if [ -f "$TARGET_DIR/$rel" ] && ! cmp -s "$f" "$TARGET_DIR/$rel"; then
+                mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
+                cp "$TARGET_DIR/$rel" "$BACKUP_DIR/$rel"
+                BACKED_UP=$((BACKED_UP+1))
+            fi
+        done < <(find "$REPO_DIR/$dir" -type f)
+    fi
+done
+if [ "$BACKED_UP" -gt 0 ]; then
+    echo "  Backed up $BACKED_UP differing file(s) to $BACKUP_DIR before overwriting"
+fi
+
 for dir in $DIRS; do
     if [ -d "$REPO_DIR/$dir" ]; then
         mkdir -p "$TARGET_DIR/$dir"
@@ -134,6 +162,39 @@ if [ -f "$SETTINGS_FILE" ]; then
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/warn-skill-md-too-long.sh\"",
+            "timeout": 3
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/check-new-file-index.sh\"",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-unwrapped-session.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PostCompact": [
       {
         "hooks": [
@@ -208,6 +269,39 @@ else
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/warn-skill-md-too-long.sh\"",
+            "timeout": 3
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/check-new-file-index.sh\"",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-unwrapped-session.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PostCompact": [
       {
         "hooks": [
@@ -233,7 +327,7 @@ echo "=== Deploy Complete ==="
 echo ""
 echo "Installed to $TARGET_DIR/:"
 [ "${SKIP_CLAUDE_MD:-0}" != "1" ] && echo "  - CLAUDE.md (operating model + instructions)"
-echo "  - skills/    (19 skills: /plan-task, /implement, /review, ...)"
+echo "  - skills/    (23 skills: /plan-task, /dialectic-review, /wrapup, ...)"
 echo "  - commands/  (7 workflow commands: /start, /prompt, /prune, ...)"
 echo "  - hooks/     (security hooks: secret blocking, destructive command warnings)"
 echo "  - guides/    (situational guides: context-efficiency, delegation, ...)"

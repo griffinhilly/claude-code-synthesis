@@ -86,6 +86,6 @@ If no task was provided, ask:
 ```
 /start quick                              # Minimal context, just start
 /start my-project — fix the data query   # Standard mode (default) with task
-/start full Agencyism                     # Full context load for deep work
+/start full my-project                    # Full context load for deep work
 /start full my-project — design skill format   # Full mode with specific task
 ```

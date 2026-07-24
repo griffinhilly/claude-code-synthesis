@@ -179,7 +179,7 @@ This repo (claude-code-synthesis) draws from all three frameworks but most heavi
 | This Repo | gstack Pattern | Adaptation |
 |-----------|---------------|------------|
 | **`/ship` skill** — pre-commit readiness check | `ship` — PR + CI pipeline | Simplified to pre-commit scope: test check, COMP freshness, staged file review, commit message drafting. Does not include PR creation or CI integration. |
-| **`/dialectic-review` skill** — multi-agent opposing review | `review` + `codex` cross-model pattern | Generalized. Instead of cross-model review, uses cross-role review: Critics vs Defenders vs Referees. Extended to 4 modes (review, ideation, tradeoff, premortem). The core insight -- different perspectives catch different failures -- is the same. |
+| **`/dialectic-review` skill** — multi-agent opposing review | `review` + `codex` cross-model pattern | Generalized. Instead of cross-model review, uses cross-role review: Critics vs Defenders vs Referees. Extended to 5 modes (review, ideation, tradeoff, premortem, council). The core insight -- different perspectives catch different failures -- is the same. |
 | **Plan-exit review** concept in `/review` escalation | `plan-ceo-review` + `plan-eng-review` | Adapted as the `/review` escalation check: significant reviews suggest `/dialectic-review` for adversarial depth. Not a separate skill, but an escalation path. |
 | **`/retro` skill** — periodic retrospective | `retro` — weekly usage analytics | Adapted from analytics to methodology review. The gstack retro is quantitative (usage metrics); this repo's retro is qualitative (what worked, what failed, patterns, suggestions). |
 

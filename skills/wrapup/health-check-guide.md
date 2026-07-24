@@ -41,3 +41,27 @@ Report which skills were used this session (from the log) and list any flags. If
 - Any skills that should be updated based on cross-project experience?
 
 If nothing notable on any of these, say so in one line and move on. Don't fabricate health issues.
+
+## Rule Promotion Gate
+
+**Principle: convergent signal across runs justifies investment. A single sighting is a candidate; a second sighting is a rule.**
+
+For every candidate rule, learning, or pattern this session would promote into permanent doctrine (CLAUDE.md, MEMORY.md, project memory files, feedback-style memos), apply the **≥2 sightings** gate:
+
+1. **Is this the first sighting?** Don't promote yet. Append to `~/.claude/candidate-rules.md` as a pending entry with: date, one-sentence rule, source session/project, what would-trigger-promotion (what specific second sighting would justify codifying it).
+2. **Has a candidate-rule been observed before?** Check `~/.claude/candidate-rules.md` for prior entries that match. If a pending candidate matches what happened this session, that's the second sighting — promote it now (move to its target file, delete from candidate-rules.md).
+3. **Genuine exceptions (skip the gate):** Bug fixes that revealed a class of bugs (already covered by "operationalize every fix"); explicit user requests to codify; security/safety items.
+
+Why this gate exists: single-occurrence rules accumulate as permanent doctrine that doesn't fire and creates resolver decay. Two independent observations is the threshold where promotion is justified. See CLAUDE.md doctrine ("Cumulative best practices with deduplication") for the broader principle this operationalizes.
+
+This gate applies recursively — it's why the rule itself was promoted (this is the second time the pattern has surfaced in workflow design).
+
+## Codify-Before-Repeating Check
+
+Per CLAUDE.md "Codify before repeating": review what happened this session for **recurring task shapes that should become skills or skill modes**. Ask explicitly:
+
+- Did you do any multi-step task this session that has the shape of something likely to recur?
+- Did you write the same kind of code, prompt, or workflow more than once in slightly different forms?
+- Were there manual fixes or workarounds that will be re-needed next time?
+
+If yes, propose codification (new skill, new skill flag, new guide, or CLAUDE.md bullet) before ending the session. Use the promotion gate above — first occurrence goes to candidate-rules.md, second occurrence promotes.
