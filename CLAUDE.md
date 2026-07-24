@@ -2,7 +2,7 @@
 
 ## Shell Command Style Rules
 
-See `guides/shell-rules.md` for full details. Key rule: never quote flags (e.g., `command -n 5` not `command '-n' 5`). Use HEREDOCs for complex git commit messages.
+See `~/.claude/guides/shell-rules.md` for full details. Key rule: never quote flags (e.g., `command -n 5` not `command '-n' 5`). Use HEREDOCs for complex git commit messages.
 
 ## Operating Model
 
@@ -45,6 +45,8 @@ These are mandatory checkpoints. When a gate condition is met, you MUST stop and
 **Cost gate**: Before spawning dialectic agents, always state the mode and get user approval. Never auto-run the full multi-agent process without consent.
 
 **Lightweight path**: For decisions that don't warrant full dialectic overhead, the argue-the-opposite pattern (see Implementation Behavior) is the fast alternative. But if argue-the-opposite produces a *strong* counter-argument, escalate -- offer `/dialectic-review` in the appropriate mode rather than just surfacing the concern.
+
+**No skills installed?** If only this CLAUDE.md was installed (Tier 1) and `/dialectic-review` doesn't exist as a command, don't offer it — use the argue-the-opposite pattern as the fallback for every gate, and mention that the full install adds the multi-agent version.
 
 ### Scope Discipline
 Push back on ambitious "tackle the whole thing at once" plans:
@@ -132,25 +134,25 @@ The workflow itself is a living system. Maintain it the same way you maintain co
 
 ## Custom Skills
 
-See `skills/` directory for all available skills and `guides/skills-reference.md` for the full table and recommended workflow. Key skills: `/plan-task`, `/implement`, `/review`, `/ship`, `/verify`, `/wrapup`, `/dialectic-review`, `/retro`.
+See `~/.claude/skills/` for all available skills and `~/.claude/guides/skills-reference.md` for the full table and recommended workflow. Key skills: `/plan-task`, `/implement`, `/review`, `/ship`, `/verify`, `/wrapup`, `/dialectic-review`, `/retro`.
 
 ## Situational Guides
 
 When you encounter these situations, read the corresponding guide before proceeding:
 
-- When writing Playwright, Selenium, or browser automation code -> read `guides/prefer-apis.md`
-- When doing exploratory PostgreSQL queries requiring repeated approval -> read `guides/postgres-batching.md`
-- When delegating work to a subagent -> read `guides/delegation-templates.md`
-- When sessions feel slow, tokens seem high, or a project has large always-loaded context -> read `guides/context-efficiency.md`
-- When setting up or debugging overnight autonomous runs -> read `guides/overnight-runner.md`
-- When the user asks about available skills or workflow -> read `guides/skills-reference.md`
-- When building a searchable archive from bookmarks -> read `guides/bookmark-archive.md`
-- When creating or refining a skill, or entering an unfamiliar domain -> read `guides/golden-exemplar.md`
-- When debugging a data pipeline failure -> read `guides/pipeline-diagnostic.md`
+- When writing Playwright, Selenium, or browser automation code -> read `~/.claude/guides/prefer-apis.md`
+- When doing exploratory PostgreSQL queries requiring repeated approval -> read `~/.claude/guides/postgres-batching.md`
+- When delegating work to a subagent -> read `~/.claude/guides/delegation-templates.md`
+- When sessions feel slow, tokens seem high, or a project has large always-loaded context -> read `~/.claude/guides/context-efficiency.md`
+- When setting up or debugging overnight autonomous runs -> read `~/.claude/guides/overnight-runner.md`
+- When the user asks about available skills or workflow -> read `~/.claude/guides/skills-reference.md`
+- When building a searchable archive from bookmarks -> read `~/.claude/guides/bookmark-archive.md`
+- When creating or refining a skill, or entering an unfamiliar domain -> read `~/.claude/guides/golden-exemplar.md`
+- When debugging a data pipeline failure -> read `~/.claude/guides/pipeline-diagnostic.md`
 
 ## Active Hooks
 
-See `hooks/` directory for hook implementations. Example hooks:
+See `~/.claude/hooks/` for hook implementations (they only fire if registered in `~/.claude/settings.json`). Example hooks:
 - **PreToolUse -> Bash**: Blocks `git add -A` / `git add .`, checks staged files for credentials before `git commit`, warns before destructive commands (rm -rf, DROP, git push --force, etc.)
 - **PreToolUse -> Read**: Blocks reads of secret/credential files
 

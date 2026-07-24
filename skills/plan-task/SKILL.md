@@ -38,13 +38,13 @@ If the task involves unfamiliar territory, launch an Explore agent to gather con
 - Note constraints, gotchas, or prior decisions from MEMORY.md
 
 ### Step 4: Decompose
-Break the task into sub-tasks. Read @decomposition-guide.md for the sub-task template and table format.
+Break the task into sub-tasks. Read `~/.claude/skills/plan-task/decomposition-guide.md` for the sub-task template and table format.
 
 ### Step 5: Identify Risks
-Read @risk-checklist.md for the risk identification framework.
+Read `~/.claude/skills/plan-task/risk-checklist.md` for the risk identification framework.
 
 ### Step 6: Polish the Plan
-Read @polishing-guide.md for the iterative refinement process, dialectic checkpoint, and multi-model synthesis option.
+Read `~/.claude/skills/plan-task/polishing-guide.md` for the iterative refinement process, dialectic checkpoint, and multi-model synthesis option.
 
 ### Step 7: Present the Plan
 Summarize the full plan in a clear format:
@@ -58,4 +58,4 @@ Summarize the full plan in a clear format:
 Ask the user: "Does this plan look right? Adjust anything before I start?"
 
 ## Rules
-Read @rules.md for planning rules and gotchas.
+Read `~/.claude/skills/plan-task/rules.md` for planning rules and gotchas.

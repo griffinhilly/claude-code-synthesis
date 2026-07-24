@@ -64,7 +64,7 @@ Many bookmarked tweets have images with text, charts, or diagrams that aren't in
 
 This makes image content searchable — a huge unlock for bookmarks where the value is in an attached screenshot or infographic.
 
-Batch 20 images per agent call for efficiency. See `examples/data-pipeline/guides/agent-orchestration.md` for the pattern.
+Batch 20 images per agent call for efficiency. See `examples/data-pipeline/guides/agent-orchestration.md` in the repo (https://github.com/griffinhilly/claude-code-synthesis) for the pattern — `examples/` ships in the repo but isn't installed to `~/.claude/`.
 
 ## Step 4: LLM Categorization
 

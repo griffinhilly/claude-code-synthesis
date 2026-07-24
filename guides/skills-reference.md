@@ -1,6 +1,6 @@
 # Skills Reference
 
-> **Note:** These are custom skills you build yourself as `.claude/commands/` files in your project. The `skills/` directory in this repo ships ready-to-use skill definitions. Start with 2-3 (e.g., `/plan-task`, `/wrapup`, `/implement`) and add more as your workflow matures.
+> **Note:** Everything below ships in this repo — skills as `skills/<name>/SKILL.md` directories (installed to `~/.claude/skills/`), workflow commands as `commands/*.md` files (installed to `~/.claude/commands/`). Start with 2-3 (e.g., `/plan-task`, `/wrapup`, `/implement`) and add more as your workflow matures.
 
 ## Workflow Skills
 
@@ -28,11 +28,11 @@ Skills in this table have corresponding directories in `skills/`.
 | `/debug [issue]` | Structured debugging with mandatory evidence gathering before any fix attempt. 4-phase protocol (Observe -> Hypothesize -> Reproduce -> Fix) with hard gates between phases. |
 | `/learn <type> <lesson>` | Capture structured learnings (gotcha, pattern, decision, bug-fix) as JSONL per project. Cross-project searchable. |
 
-## Planned Skills
+## Workflow Commands
 
-These skills are referenced in the workflow but don't yet ship as `skills/` directories in this repo. Build them yourself or wait for a future release.
+These ship in this repo's `commands/` directory and handle session lifecycle and prompt formatting rather than task-specific work.
 
-| Skill | Purpose |
+| Command | Purpose |
 |-------|---------|
 | `/start [project] [-- task]` | Session kickoff. Loads COMP files, presents status dashboard, micro-plans the session. |
 | `/prompt <brain dump>` | Converts informal/dictated requests into structured prompts, then executes. Supports `depth:light/standard/deep` and `hold` to skip execution. |
@@ -40,6 +40,7 @@ These skills are referenced in the workflow but don't yet ship as `skills/` dire
 | `/prompt-refine <prompt>` | Audits an existing prompt against quality checklists and outputs an improved version. |
 | `/review-plan [flags]` | Stress-tests a plan with expert critique, web research, and Red/Yellow/Green findings. Supports `quick`, `depth:deep`, `focus:dimension`, `role:"..."`. |
 | `/prune [flags]` | Audit and trim auto-loaded files (CLAUDE.md, MEMORY.md) for context bloat. Supports `project:path`, `target:claude/memory`, `dryrun`, `auto`. |
+| `/overnight <task list>` | Set up overnight autonomous batch runs with retry and checkpoint logic. |
 
 ## Recommended Workflow
 

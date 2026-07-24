@@ -19,33 +19,23 @@ v1 shipped the operating model (`CLAUDE.md`) and a handful of guides. v2 ships t
 
 **Tier 1: Just the operating model.**
 ```bash
-cp CLAUDE.md ~/.claude/CLAUDE.md
+cp CLAUDE.md ~/.claude/CLAUDE.md   # back up any existing ~/.claude/CLAUDE.md first
 ```
-Edit the `Platform Notes` and `Interaction Style` sections to match your setup. This single file changes how Claude approaches every task.
+Edit the `Platform Notes` and `Interaction Style` sections to match your setup. This single file changes how Claude approaches every task. One caveat: CLAUDE.md references skills like `/dialectic-review` that a Tier 1-only install doesn't have — the file tells Claude to fall back to lightweight alternatives, but the full experience needs Tier 2.
 
-**Tier 2: Full install.**
+**Tier 2: Full install (recommended).**
 ```bash
 git clone https://github.com/griffinhilly/claude-code-synthesis /tmp/claude-workflow
-
-# Operating model
-cp /tmp/claude-workflow/CLAUDE.md ~/.claude/CLAUDE.md
-
-# Skills
-mkdir -p ~/.claude/skills
-cp -r /tmp/claude-workflow/skills/* ~/.claude/skills/
-
-# Hooks
-cp -r /tmp/claude-workflow/hooks/* ~/.claude/hooks/
-
-# Guides
-cp -r /tmp/claude-workflow/guides ~/.claude/guides
-
-# Tools
-cp -r /tmp/claude-workflow/tools ~/.claude/tools
+bash /tmp/claude-workflow/deploy.sh
 ```
+`deploy.sh` copies `CLAUDE.md`, `skills/`, `commands/`, `hooks/`, `guides/`, and `tools/` into `~/.claude/`, and — critically — registers the hooks in `~/.claude/settings.json`. Hooks only fire if registered there; copying the files alone does nothing. It asks before overwriting an existing CLAUDE.md, and if you already have a settings.json it prints the hook block for you to merge by hand.
+
+Prefer manual installation? Copy the five directories the same way (`mkdir -p ~/.claude/skills && cp -r /tmp/claude-workflow/skills/* ~/.claude/skills/`, and likewise for `commands`, `hooks`, `guides`, `tools`), then register the hooks in `~/.claude/settings.json` using the template inside `deploy.sh`.
 
 **Tier 3: Let Claude do it.**
 Tell Claude Code: *"Clone https://github.com/griffinhilly/claude-code-synthesis and set up my config based on it."*
+
+**New to all of this? Start with three.** After installing, use just `/plan-task`, `/implement`, and `/wrapup` for your first week, and add more as the workflow proves itself. The full set below is a menu, not a curriculum.
 
 ## What's In Here
 
@@ -55,7 +45,7 @@ The behavioral contract that governs every session. Defines leverage doctrine (h
 
 ### `skills/` -- 19 Slash Commands
 
-Skills are `.claude/commands/` files that encode multi-step workflows as single invocations. They range from lightweight wrappers (brainstorm, premortem) to complex multi-agent protocols (dialectic-review, debug, bug-hunt).
+Skills live in `skills/<name>/SKILL.md` directories (installed to `~/.claude/skills/`) and encode multi-step workflows as single invocations. They range from lightweight wrappers (brainstorm, premortem) to complex multi-agent protocols (dialectic-review, debug, bug-hunt).
 
 | Skill | What It Does |
 |-------|-------------|
@@ -79,14 +69,13 @@ Skills are `.claude/commands/` files that encode multi-step workflows as single 
 | `/tradeoff` | Compare 2+ options with dedicated advocates, counter-advocates who challenge every position, and a decisive referee. |
 | `/socrates` | Socratic questioning to stress-test a philosophical framework or thesis. |
 
-### `commands/` -- 8 Workflow Commands
+### `commands/` -- 7 Workflow Commands
 
 Commands are user-invocable slash commands that handle session lifecycle and prompt formatting. Unlike skills (which are task-specific), commands are workflow infrastructure -- session start/end, commit preparation, plan review, context pruning.
 
 | Command | What It Does |
 |---------|-------------|
 | `/start` | Session kickoff. Loads COMP files, presents status dashboard, micro-plans the session. |
-| `/wrapup` | Session closer. COMP updates + bloat check + session summary. (Also in `skills/`.) |
 | `/prompt` | Converts informal/dictated ideas into structured prompts, then executes. |
 | `/prompt-only` | Same as `/prompt` but outputs the formatted prompt without executing. |
 | `/prompt-refine` | Audits an existing prompt against quality checklists. |
@@ -94,7 +83,7 @@ Commands are user-invocable slash commands that handle session lifecycle and pro
 | `/prune` | Audit and trim auto-loaded files (CLAUDE.md, MEMORY.md) for context bloat. |
 | `/overnight` | Set up overnight autonomous batch runs with retry and checkpoint logic. |
 
-### `hooks/` -- 6 Event Hooks
+### `hooks/` -- 7 Event Hooks
 
 | Hook | Trigger | What It Does |
 |------|---------|-------------|
@@ -195,6 +184,12 @@ The 9-step flow from `/start` to `/prune`, covering a complete session lifecycle
 9. **`/prune`** -- Periodically trim context bloat (monthly or when `/wrapup` flags it)
 
 Not every session uses all 9 steps. A quick bug fix might be `/start`, `/debug`, `/ship`, `/wrapup`. A planning session might be `/start`, `/plan-task`, `/review-plan`, `/wrapup`. Use judgment.
+
+## Updating and Uninstalling
+
+**Update:** pull the repo and re-run `deploy.sh`. It overwrites same-named shipped files (so customize under different filenames) and leaves everything else alone; it asks before touching your CLAUDE.md.
+
+**Uninstall:** delete the installed files — the skills, commands, guides, hooks, and tools listed in the tables above — from `~/.claude/`, and remove the hook entries from `~/.claude/settings.json`.
 
 ## Standing on the Shoulders of Giants
 

@@ -39,7 +39,7 @@ If `$ARGUMENTS` includes a task description (e.g., `/start my-project — build 
 2. **ORIENT.md** — project orientation, codebase shape, common operations
 3. **MEMORY.md** — working notes, gotchas, recent decisions
 4. **PLAN.md** — roadmap + current state section at top
-5. **Auto-memory** (`~/.claude/projects/C--Users-griff/memory/MEMORY.md`) — cross-project context
+5. **Auto-memory** (`~/.claude/projects/<your-project-dir>/memory/MEMORY.md` — run `/memory` in Claude Code to locate yours) — cross-project context
 
 ### Step 3: Present Status Dashboard
 

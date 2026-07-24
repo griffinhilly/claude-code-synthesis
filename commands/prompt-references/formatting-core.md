@@ -77,7 +77,7 @@ After formatting, check whether the task is better suited to another tool. Brief
 | Deep multi-source web research, "find everything about X" | `/research` skill or Perplexity | Better web synthesis with citations |
 | Heavy spreadsheet work (formulas, pivots, formatting) | Manual (Excel/Sheets) | Native spreadsheet features |
 | Video/audio transcription or analysis | External tool | Can process media directly |
-| Database queries on Griffin's PostgreSQL | Claude Code with psycopg2 | Use Python, not psql CLI |
+| Database queries on your local PostgreSQL | Claude Code with psycopg2 | Use Python, not psql CLI |
 | Multi-perspective analysis or high-stakes decisions | `/dialectic-review` skill | Three-agent adversarial review |
 | Plan critique before implementation | `/review-plan` skill | Structured expert critique |
 | Otherwise | Proceed in Claude Code | Strong at reasoning, editing, local files |

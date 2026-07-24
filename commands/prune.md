@@ -110,20 +110,11 @@ These are guidelines, not hard rules. A 250-line CLAUDE.md for an active project
 Scan these paths (update as projects change):
 
 ```
-~/CLAUDE.md (global)
 ~/.claude/CLAUDE.md (global instructions)
-~/.claude/projects/C--Users-griff/memory/MEMORY.md (auto-memory)
-~/Projects/my-analytics/
-~/Projects/griffin/Agencyism/
-~/Projects/my-data-pipeline/
-~/Projects/griffin/Polymarket/
-~/Projects/griffin/NCP/
-~/Projects/griffin/knowledge-architecture/
-~/Projects/griffin/open-knowledge-graph/
-~/Projects/griffin/Canons/
-~/Projects/griffin/Discretion/
-~/Projects/griffin/my-project/
-~/Projects/griffin/my-database/
+~/.claude/projects/<your-project-dir>/memory/MEMORY.md (auto-memory index)
+~/Projects/project-a/            # ← replace these with your real project paths
+~/Projects/project-b/
+~/Projects/client-work/project-c/
 ```
 
 ## Examples

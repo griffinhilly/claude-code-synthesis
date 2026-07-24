@@ -30,9 +30,10 @@ fi
 
 SUSPECT=""
 while IFS= read -r file; do
-  # Skip known content directories (topic files, not secrets)
+  # Exempt paths — CUSTOMIZE for your repo's known-safe content dirs.
+  # (hooks/* stays exempt so hook scripts with "secret" in the filename don't trip the scan.)
   case "$file" in
-    domains/*|output/*|hooks/*) continue ;;
+    hooks/*) continue ;;
   esac
   case "$file" in
     *.env|*.env.*|*credentials*|*secret*|*.pem|*.key|*pgpass*|*.p12|*.pfx)

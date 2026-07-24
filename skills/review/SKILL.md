@@ -24,16 +24,16 @@ If no arguments, review whatever was most recently implemented in the conversati
 - Identify the success criteria (from /plan-task output, PLAN.md, or conversation)
 
 ### Step 2: Launch Review
-Read @review-dimensions.md for what to check based on the type of work (code, data, writing).
+Read `~/.claude/skills/review/review-dimensions.md` for what to check based on the type of work (code, data, writing).
 
 Launch the review using a fresh-context subagent (use the `code-reviewer` agent persona for code). The reviewer should NOT share the implementer's assumptions.
 
 ### Step 3: Present Findings
-Read @output-format.md for how to organize findings.
+Read `~/.claude/skills/review/output-format.md` for how to organize findings.
 
 ### Step 4: Escalation Check
 - For significant reviews, consider suggesting `/dialectic-review` for adversarial depth
 - If the review surfaces architectural concerns, suggest `/dialectic-review --premortem` before proceeding with fixes
 
 ## Rules
-Read @rules.md for review rules and gotchas.
+Read `~/.claude/skills/review/rules.md` for review rules and gotchas.

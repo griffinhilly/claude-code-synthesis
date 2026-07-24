@@ -25,22 +25,22 @@ $ARGUMENTS
 ## Process
 
 ### Step 1: Compile Session Notes
-Read @session-notes-template.md — fill in each field from the session.
+Read `~/.claude/skills/wrapup/session-notes-template.md` — fill in each field from the session.
 
 ### Step 2: Session Review (fresh context)
-Unless `noreview` flag is set. Read @session-review-guide.md for how to dispatch and present the reviewer.
+Unless `noreview` flag is set. Read `~/.claude/skills/wrapup/session-review-guide.md` for how to dispatch and present the reviewer.
 
 ### Step 3: Update COMP Files
-Read @comp-update-guide.md for what to update in each file.
+Read `~/.claude/skills/wrapup/comp-update-guide.md` for what to update in each file.
 
 ### Step 4: Skill & Execution Health
-Read @health-check-guide.md for the skill iteration check, execution reliability self-check, and cross-project transfer.
+Read `~/.claude/skills/wrapup/health-check-guide.md` for the skill iteration check, execution reliability self-check, and cross-project transfer.
 
 ### Step 5: Bloat Check
-Unless `noprune` flag is set, run the lightweight check described in @bloat-check-guide.md.
+Unless `noprune` flag is set, run the lightweight check described in `~/.claude/skills/wrapup/bloat-check-guide.md`.
 
 ### Step 6: Session Summary
-Read @summary-template.md for the output format.
+Read `~/.claude/skills/wrapup/summary-template.md` for the output format.
 
 ## Examples
 ```

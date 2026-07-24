@@ -17,18 +17,24 @@ echo ""
 # ── 1. Check for existing CLAUDE.md ──────────────────────────────────────────
 
 if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
-    echo "WARNING: $TARGET_DIR/CLAUDE.md already exists."
-    echo ""
-    read -rp "Overwrite it? [y/N] " answer
-    case "$answer" in
-        [yY]|[yY][eE][sS])
-            echo "Overwriting CLAUDE.md..."
-            ;;
-        *)
-            echo "Skipping CLAUDE.md (keeping existing)."
-            SKIP_CLAUDE_MD=1
-            ;;
-    esac
+    if [ -t 0 ]; then
+        echo "WARNING: $TARGET_DIR/CLAUDE.md already exists."
+        echo ""
+        read -rp "Overwrite it? [y/N] " answer
+        case "$answer" in
+            [yY]|[yY][eE][sS])
+                echo "Overwriting CLAUDE.md..."
+                ;;
+            *)
+                echo "Skipping CLAUDE.md (keeping existing)."
+                SKIP_CLAUDE_MD=1
+                ;;
+        esac
+    else
+        # Non-interactive (piped/CI/agent-driven): never overwrite silently
+        echo "Non-interactive run and $TARGET_DIR/CLAUDE.md exists — keeping existing. Copy manually to overwrite."
+        SKIP_CLAUDE_MD=1
+    fi
 fi
 
 # ── 2. Create target directory if needed ─────────────────────────────────────
@@ -46,6 +52,7 @@ fi
 
 DIRS="skills commands hooks guides tools"
 
+echo "  Note: same-named files in these directories are overwritten (customize under different filenames)."
 for dir in $DIRS; do
     if [ -d "$REPO_DIR/$dir" ]; then
         mkdir -p "$TARGET_DIR/$dir"
@@ -102,6 +109,16 @@ if [ -f "$SETTINGS_FILE" ]; then
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/block-secret-reads.sh\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/epistemic-guard.sh\"",
             "timeout": 5
           }
         ]
@@ -171,6 +188,16 @@ else
         ]
       },
       {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/epistemic-guard.sh\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
         "matcher": "Skill",
         "hooks": [
           {
@@ -206,7 +233,8 @@ echo "=== Deploy Complete ==="
 echo ""
 echo "Installed to $TARGET_DIR/:"
 [ "${SKIP_CLAUDE_MD:-0}" != "1" ] && echo "  - CLAUDE.md (operating model + instructions)"
-echo "  - skills/    (18 slash commands: /plan-task, /implement, /review, ...)"
+echo "  - skills/    (19 skills: /plan-task, /implement, /review, ...)"
+echo "  - commands/  (7 workflow commands: /start, /prompt, /prune, ...)"
 echo "  - hooks/     (security hooks: secret blocking, destructive command warnings)"
 echo "  - guides/    (situational guides: context-efficiency, delegation, ...)"
 echo "  - tools/     (session-search, skill-usage-report)"
