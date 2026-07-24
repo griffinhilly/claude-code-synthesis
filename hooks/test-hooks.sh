@@ -26,8 +26,15 @@ t "push feature branch with -f in name allowed" warn-destructive.sh "$(j 'git pu
 t "push --force blocked" warn-destructive.sh "$(j 'git push --force origin main')" 2
 t "push -f blocked" warn-destructive.sh "$(j 'git push -f')" 2
 t "truncate flag allowed" warn-destructive.sh "$(j 'somecmd --truncate-long-lines file')" 0
-t "TRUNCATE TABLE blocked" warn-destructive.sh "$(j 'run_sql TRUNCATE TABLE users')" 2
-t "echo about DROP TABLE in quotes allowed" warn-destructive.sh "$(j 'echo "never run DROP TABLE manually"')" 0
+t "quoted rm target blocked" warn-destructive.sh "$(j 'rm -rf "/home/u/important"')" 2
+t "single-quoted rm target blocked" warn-destructive.sh "$(j "rm -rf '/etc/nginx'")" 2
+t "path ending in safe name blocked" warn-destructive.sh "$(j 'rm -rf /srv/app/build')" 2
+t "find -exec rm -rf blocked" warn-destructive.sh "$(j 'find . -name x -exec rm -rf {} +')" 2
+t "psql double-quoted DROP blocked" warn-destructive.sh "$(j 'psql -c "DROP TABLE users"')" 2
+t "psql single-quoted TRUNCATE blocked" warn-destructive.sh "$(j "psql -c 'TRUNCATE TABLE users'")" 2
+# Deliberate asymmetry: a message merely MENTIONING destructive SQL warns too —
+# a visible false positive is cheap, a silently dropped table is not.
+t "mention of DROP TABLE warns (accepted false positive)" warn-destructive.sh "$(j 'echo "never run DROP TABLE manually"')" 2
 t "branch long-form force delete blocked" warn-destructive.sh "$(j 'git branch --delete --force old')" 2
 
 echo "── block-secret-bash ──"

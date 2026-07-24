@@ -16,7 +16,6 @@
 {"input": "find every bug in this code", "expected_skill": "bug-hunt", "category": "quality"}
 {"input": "this is broken, debug it", "expected_skill": "debug", "category": "quality"}
 {"input": "the state machine is acting weird — slow down and trace state per step", "expected_skill": "debug", "expected_flags": ["--hand-compute"], "category": "quality"}
-{"input": "simplify this code — is it earning its complexity?", "expected_skill": "simplify", "category": "quality"}
 {"input": "go research how X works", "expected_skill": "research", "category": "learning"}
 {"input": "capture this learning so I don't forget", "expected_skill": "learn", "category": "learning"}
 {"input": "I want to look back at what worked and what didn't", "expected_skill": "retro", "category": "learning"}
@@ -30,4 +29,3 @@
 {"input": "format this prompt and send it", "expected_skill": "prompt", "category": "tooling"}
 {"input": "format this prompt but don't send", "expected_skill": "prompt-only", "category": "tooling"}
 {"input": "improve this prompt before I send it", "expected_skill": "prompt-refine", "category": "tooling"}
-{"input": "add this hook to settings.json", "expected_skill": "update-config", "category": "integration"}

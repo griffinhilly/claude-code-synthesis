@@ -181,8 +181,11 @@ def shorten_project_name(raw_name):
     # e.g., "C--Users-alice" on Windows, "-home-alice" on Linux
 
     if raw_name.startswith(home_encoded):
-        remainder = raw_name[len(home_encoded):].lstrip("-")
-        return remainder if remainder else "~"
+        remainder = raw_name[len(home_encoded):]
+        # boundary check: C--Users-alice must not claim C--Users-alice2-app
+        if remainder == "" or remainder.startswith("-"):
+            remainder = remainder.lstrip("-")
+            return remainder if remainder else "~"
 
     # Fallback: return as-is
     return raw_name

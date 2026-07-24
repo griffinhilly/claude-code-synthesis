@@ -332,7 +332,8 @@ fi
 # to warn-destructive.sh and require the block, instead of trusting the install.
 
 HOOK_TEST_JSON='{"tool_input":{"command":"rm -rf /tmp/deploy-selftest-target"}}'
-if printf '%s' "$HOOK_TEST_JSON" | bash "$TARGET_DIR/hooks/warn-destructive.sh" >/dev/null 2>&1; then
+HOOK_TEST_ERR=$(printf '%s' "$HOOK_TEST_JSON" | bash "$TARGET_DIR/hooks/warn-destructive.sh" 2>&1 >/dev/null || true)
+if ! printf '%s' "$HOOK_TEST_ERR" | grep -q "DESTRUCTIVE COMMAND WARNING"; then
     echo ""
     echo "  WARNING: hook self-check FAILED — warn-destructive.sh did NOT block a"
     echo "  destructive test command. The hooks are likely inert on this machine"

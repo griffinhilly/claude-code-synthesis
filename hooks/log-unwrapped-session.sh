@@ -15,7 +15,9 @@ cwd=$(printf '%s' "$input" | "$PY" -c "import sys,json;print(json.load(sys.stdin
 # Sessions launched from the home directory itself are exempt; any git repo
 # elsewhere counts. (CUSTOMIZE: narrow to your projects root if this is noisy,
 # e.g. case "$cwd" in */Projects/*|*/dev/*) : ;; *) exit 0 ;; esac)
-[ "$cwd" = "$HOME" ] && exit 0
+cwd_norm=$(printf '%s' "$cwd" | sed 's|\|/|g')
+home_norm=$(printf '%s' "$HOME" | sed 's|\|/|g')
+[ "$cwd_norm" = "$home_norm" ] && exit 0
 git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
 dirty=$(git -C "$cwd" status --porcelain 2>/dev/null | grep -c .)
 if [ "${dirty:-0}" -gt 0 ]; then

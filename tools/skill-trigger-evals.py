@@ -57,8 +57,8 @@ def existing_skills():
             if p.is_dir() and (p / "SKILL.md").exists():
                 skills.add(p.name)
     # Also accept Claude Code built-in skills that don't live in ~/.claude/skills/.
-    # CUSTOMIZE: add your plugin-provided skills (e.g. "myplugin:configure") here,
-    # or extend BUILTIN_SKILLS via the --extra-skills flag if you add one.
+    # CUSTOMIZE: add your plugin-provided skills (e.g. "myplugin:configure") to
+    # this inline set.
     skills.update({"loop", "schedule", "init"})
     # Commands also count as routable destinations
     commands_dir = CLAUDE_DIR / "commands"

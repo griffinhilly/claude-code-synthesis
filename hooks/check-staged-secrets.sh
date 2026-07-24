@@ -10,6 +10,9 @@ COMMAND=$(echo "$INPUT" | "$PY" -c "import sys,json; print(json.load(sys.stdin).
 # Only check git commit commands.
 # "git add ." must match only bare-dot staging: `git add .` at end of command
 # or followed by a space — NOT `git add .gitignore` or `git add ./src`.
+# Normalize ; | & and newlines to spaces first so `git add . ; git commit`
+# still matches the followed-by-space form.
+COMMAND=$(printf '%s' "$COMMAND" | tr ';|&\n' '    ')
 case "$COMMAND" in
   *"git commit"*|*"git add -A"*|*"git add --all"*|*"git add ."|*"git add . "*)
     ;;
