@@ -3,7 +3,7 @@ name: comp
 description: Create or update all 4 COMP files (CLAUDE.md, ORIENT.md, MEMORY.md, PLAN.md) for a directory
 user-invocable: true
 disable-model-invocation: false
-argument-hint: [directory path]
+argument-hint: "[directory path]"
 ---
 
 # COMP Update

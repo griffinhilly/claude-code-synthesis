@@ -3,7 +3,7 @@ name: ship
 description: Pre-commit readiness check. Verifies tests, COMP freshness, uncommitted changes, then drafts commit message and stages specific files.
 user-invocable: true
 disable-model-invocation: false
-argument-hint: [commit message hint]
+argument-hint: "[commit message hint]"
 ---
 
 # /ship -- Pre-Commit Readiness Check

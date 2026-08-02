@@ -3,7 +3,7 @@ name: wrapup
 description: End-of-session closer. Compiles session notes, gets fresh-context review, updates COMP files, checks skill health and execution gaps, runs bloat check.
 user-invocable: true
 disable-model-invocation: false
-argument-hint: [noprune|prune|noreview|project:path]
+argument-hint: "[noprune|prune|noreview|project:path]"
 ---
 
 # /wrapup — Session Closer

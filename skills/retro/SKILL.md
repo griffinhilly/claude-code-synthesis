@@ -3,7 +3,7 @@ name: retro
 description: Periodic retrospective — assess what Claude did well, what went poorly, and what to improve
 user-invocable: true
 disable-model-invocation: true
-argument-hint: [weekly | session | project <name>]
+argument-hint: "[weekly | session | project <name>]"
 ---
 
 # Retrospective

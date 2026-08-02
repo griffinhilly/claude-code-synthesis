@@ -3,7 +3,7 @@ name: review
 description: Review completed work against success criteria and flag issues
 user-invocable: true
 disable-model-invocation: false
-argument-hint: [what to review - file, feature, or recent work]
+argument-hint: "[what to review - file, feature, or recent work]"
 ---
 
 # Review

@@ -3,7 +3,7 @@ name: bug-hunt
 description: Three-agent adversarial bug finder. Hunter overclaims every issue it can find, Skeptic disproves what it can, Referee arbitrates what survives. Scoring incentives force each role to behave honestly.
 user-invocable: true
 disable-model-invocation: false
-argument-hint: [--lens <expert>] [target files or description]
+argument-hint: "[--lens <expert>] [target files or description]"
 ---
 
 # Bug Hunt
