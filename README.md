@@ -1,8 +1,22 @@
 # Claude Code Workflow
 
-A complete, opinionated Claude Code workflow. 23 skills, 10 hooks, 29 guides, 7 tools, a routing table, and an operating model you can install in one command.
+A complete, opinionated Claude Code workflow. 24 skills, 10 hooks, 31 guides, 8 tools, a routing table, a safety doctrine, and an operating model you can install in one command.
 
 **This isn't a tutorial or a library.** It's a working configuration -- built over a year of daily use -- that you can copy into your own setup and adapt.
+
+## What's New in v4
+
+v4 (October 2026) backports three more months of daily use. Most of it is doctrine: rules added to CLAUDE.md after the same failure showed up in real sessions.
+
+- **Fact-check to a threshold before publishing.** Anything factual written for an outside reader gets a stated error tolerance, a measured error rate before fixing, and fix-and-recheck rounds until an independent sample comes in under the bar. Added after the first draft of a research page held 134 errors in 523 checked fields, including invented quotes. A second clause says a clean sample is not a clean document: quotes, figures and attributions get a full second check.
+- **Review surfaces are HTML pages, shown inline.** Anything longer than a few lines that the user must review or decide on becomes one self-contained page that quotes the material, states each decision, and opens inline. No more "see the file at ...".
+- **New behaviour rules:** estimate effort in agent minutes, not human days; tell the user when they're wrong on the central point, even when they're frustrated; put conclusions after the last tool call, because text before a tool call can fail to render; never bundle a decision brief with a choice menu.
+- **A writing standard.** A Writing Style section adopts the writing rules of Simplified Technical English plus Zinsser's four principles, and a "readers get the content, not the making-of" rule for anything published. It ships as a default to replace with your own house style.
+- **SAFETY.md.** The safety rules (database mutations, external sends, secrets handling, destructive git) now live in their own file, which wins any conflict with CLAUDE.md. CLAUDE.md keeps a short summary.
+- **Phone sessions.** A new guide covers running desktop sessions from the Claude phone app with Remote Control: a standing bridge, one session per task, launch-pad folders, and the spawn-brief pattern. The new `/rsb` skill ("read SPAWN-BRIEF.md and execute") is how a spawned session starts. It became the third most-used custom skill within ten days.
+- **Silent subagent hangs.** A background agent can receive all its tool results and never take its next turn; nothing times out and no notification fires. The new `tools/agent-liveness.py` reads transcripts on disk and labels each agent running, complete or stalled. `delegation-templates.md` gains this rule and five more, including "word caps make agents run length checks in a loop" and "agents coding the same items differ in strictness by more than 10x; audit per agent before counting".
+- **Smaller updates:** three more AI-prose tells in `prose-de-aiism.md`; a "retry with a browser User-Agent" step for blocked pages; two headless-Chrome gotchas; a disk-first step in `/wrapup`; `/sessions` now counts sessions started by a slash command; the PostCompact hook reads a session-state file outside `~/.claude/` (every write inside `~/.claude/` asks for permission) and now re-injects the Decision Quality Gates as documented.
+- **Usage, updated.** [What Actually Gets Used](#what-actually-gets-used) now covers seven months, and the last three look different from the first four.
 
 ## What's New in v3
 
@@ -22,21 +36,21 @@ v2 (April 2026) shipped the full skill/hook/guide system. v3 ships three months 
 ```bash
 cp CLAUDE.md ~/.claude/CLAUDE.md   # back up any existing ~/.claude/CLAUDE.md first
 ```
-Edit the `Platform Notes` and `Interaction Style` sections to match your setup. This single file changes how Claude approaches every task. One caveat: this CLAUDE.md is written for the full install. On its own, its skill references (`/dialectic-review` etc.), its ~25 situational-guide pointers, and the RESOLVER.md routing mandate all point at files you won't have — the Decision Quality Gates have an explicit no-skills fallback, but the guide pointers will just be dead references Claude learns to skip. Tier 1 is a preview of the operating model, not a working subset; the working system is Tier 2.
+Edit the `Platform Notes` and `Interaction Style` sections to match your setup. This single file changes how Claude approaches every task. One caveat: this CLAUDE.md is written for the full install. On its own, its skill references (`/dialectic-review` etc.), its ~30 situational-guide pointers, and the RESOLVER.md routing mandate all point at files you won't have — the Decision Quality Gates have an explicit no-skills fallback, but the guide pointers will just be dead references Claude learns to skip. Tier 1 is a preview of the operating model, not a working subset; the working system is Tier 2.
 
 **Tier 2: Full install (recommended).**
 ```bash
 git clone https://github.com/griffinhilly/claude-code-synthesis /tmp/claude-workflow
 bash /tmp/claude-workflow/deploy.sh
 ```
-`deploy.sh` copies `CLAUDE.md`, `RESOLVER.md`, `skills/`, `commands/`, `hooks/`, `guides/`, and `tools/` into `~/.claude/`, backs up any of your files it would overwrite (to `~/.claude/.deploy-backup-<timestamp>/`), and — critically — registers the hooks in `~/.claude/settings.json`. Hooks only fire if registered there; copying the files alone does nothing. It asks before overwriting an existing CLAUDE.md, and if you already have a settings.json it prints the hook block for you to merge by hand.
+`deploy.sh` copies `CLAUDE.md`, `RESOLVER.md`, `SAFETY.md`, `skills/`, `commands/`, `hooks/`, `guides/`, and `tools/` into `~/.claude/`, backs up any of your files it would overwrite (to `~/.claude/.deploy-backup-<timestamp>/`), and — critically — registers the hooks in `~/.claude/settings.json`. Hooks only fire if registered there; copying the files alone does nothing. It asks before overwriting an existing CLAUDE.md, and if you already have a settings.json it prints the hook block for you to merge by hand.
 
-Prefer manual installation? Copy the five directories the same way (`mkdir -p ~/.claude/skills && cp -r /tmp/claude-workflow/skills/* ~/.claude/skills/`, and likewise for `commands`, `hooks`, `guides`, `tools`), then register the hooks in `~/.claude/settings.json` using the template inside `deploy.sh`.
+Prefer manual installation? Copy `CLAUDE.md`, `RESOLVER.md`, `SAFETY.md` and `candidate-rules.md` into `~/.claude/`, create `~/claude-scratch/`, and copy the five directories the same way (`mkdir -p ~/.claude/skills && cp -r /tmp/claude-workflow/skills/* ~/.claude/skills/`, and likewise for `commands`, `hooks`, `guides`, `tools`), then register the hooks in `~/.claude/settings.json` using the template inside `deploy.sh`.
 
 **Tier 3: Let Claude do it.**
 Tell Claude Code: *"Clone https://github.com/griffinhilly/claude-code-synthesis and set up my config based on it."*
 
-**New to all of this? Start with three.** After installing, use just `/plan-task`, `/dialectic-review`, and `/wrapup` for your first week, and add more as the workflow proves itself. (Our own usage log says those — plus the doctrine in CLAUDE.md — carry most of the value; see [What Actually Gets Used](#what-actually-gets-used).) The full set below is a menu, not a curriculum.
+**New to all of this? Start with three.** After installing, use just `/plan-task`, `/dialectic-review`, and `/wrapup` for your first week, and add more as the workflow proves itself. (Our own usage log says those — plus the doctrine in CLAUDE.md — carried most of the value for the first four months, before our sessions got shorter and more task-specific; see [What Actually Gets Used](#what-actually-gets-used).) The full set below is a menu, not a curriculum.
 
 ## What's In Here
 
@@ -44,11 +58,15 @@ Tell Claude Code: *"Clone https://github.com/griffinhilly/claude-code-synthesis 
 
 The behavioral contract that governs every session. Defines leverage doctrine (human decides, Claude executes), plan-first protocol, scope discipline, agent principles, dialectic reviews, implementation behavior, mid-session hygiene, security safeguards, the COMP documentation system, and workflow evolution rules. See the [Key Ideas](#key-ideas-worth-highlighting) section below for highlights.
 
+### `SAFETY.md` -- The Safety Doctrine
+
+Database mutations, external communications, secrets handling, destructive shell and git operations, and the hook-backed protections behind them. Re-read before any destructive or outward-facing action; it takes precedence over CLAUDE.md on any conflict.
+
 ### `RESOLVER.md` -- The Routing Table
 
 Task descriptions → skill invocations; content types → filing destinations. Consulted before invoking a skill on an ambiguous task or writing any cross-project memory. Also holds the when-to-make-a-new-skill checklist and the ≥2-sightings promotion gate that keeps single-occurrence "lessons" from accumulating as permanent doctrine.
 
-### `skills/` -- 23 Slash Commands
+### `skills/` -- 24 Slash Commands
 
 Skills live in `skills/<name>/SKILL.md` directories (installed to `~/.claude/skills/`) and encode multi-step workflows as single invocations. They range from lightweight wrappers (brainstorm, premortem) to complex multi-agent protocols (dialectic-review, debug, bug-hunt).
 
@@ -76,6 +94,7 @@ Skills live in `skills/<name>/SKILL.md` directories (installed to `~/.claude/ski
 | `/distill` | Diff an agent draft against the user-corrected final, extract patterns from the corrections, propose candidate rules. The manual form of the self-improving-skill loop. |
 | `/sessions` | List recent sessions with IDs, descriptions, and turn counts. For finding and resuming past or crashed sessions. |
 | `/check-resolvable` | Audit `~/.claude/` for orphans — skills, guides, and tools that exist on disk but are unreachable from CLAUDE.md / RESOLVER.md. |
+| `/rsb` | "Read SPAWN-BRIEF.md and execute." The first message of a session another session spawned with a brief, usually opened from a phone. See `guides/remote-control-sessions.md`. |
 | `/autoresearch` | Bounded autonomous optimization loop: numeric eval + wall-clock budget + git-branch commits + keep-or-revert. Agent iterates on code; human iterates on the prompt. |
 
 ### `commands/` -- 7 Workflow Commands
@@ -109,7 +128,7 @@ Commands are user-invocable slash commands that handle session lifecycle and pro
 
 Every hook is covered by `hooks/test-hooks.sh`, a harness that feeds each of the 10 hooks the same JSON the Claude Code harness would send and asserts the exact allow/block/notice exit code — including regression cases for every bypass and false positive found in review. Run it after any hook edit (see `guides/hook-self-test.md`). Note the delivery mechanics it encodes: on PreToolUse/PostToolUse, exit-0 output never reaches the model (it surfaces at most in the user-facing transcript); a warning only reaches the model via PostToolUse exit 2 (non-blocking notice), which is how the three reminder hooks work. And know the failure mode: if no working `python3`/`python` is on PATH, the hooks fail OPEN — `deploy.sh` checks for this at install time.
 
-### `tools/` -- 7 Utilities
+### `tools/` -- 8 Utilities
 
 | Tool | What It Does |
 |------|-------------|
@@ -119,16 +138,17 @@ Every hook is covered by `hooks/test-hooks.sh`, a harness that feeds each of the
 | `skill-trigger-evals.py` | Eval harness for skill routing: checks that test-case task descriptions resolve to real skills (cases in `skill-trigger-evals.jsonl`). |
 | `mock-finder.py` | Scans for stub/TODO/placeholder code debt an agent left behind. |
 | `heartbeat.py` | Silent-by-default monitoring: parses a `~/.claude/HEARTBEAT.md` checklist you write (format documented in the script header), emits only anomalies. |
+| `agent-liveness.py` | Labels background subagents RUNNING / COMPLETE / STALLED from their transcripts on disk; exits 1 if any stalled. The Agent tool's `.output` file stays empty even for finished agents, so it can't tell you. |
 | `archive-transcripts.sh` | Idempotent daily archival of session transcripts before Claude Code's retention window prunes them. |
 
-### `guides/` -- 29 On-Demand Reference Docs
+### `guides/` -- 31 On-Demand Reference Docs
 
 Guides load on-demand when triggered by specific situations. This keeps `CLAUDE.md` lean while making deep knowledge available when needed.
 
 | Guide | When to Load It |
 |-------|----------------|
 | `skills-reference.md` | Need the full skills table or recommended workflow |
-| `delegation-templates.md` | Delegating work to subagents -- 7 agent types with prompt templates |
+| `delegation-templates.md` | Delegating work to subagents -- 7 agent types with prompt templates, plus fan-out budget, hang and strictness rules |
 | `reference-repo-comparison.md` | Comparing Superpowers, gstack, and Compound Engineering frameworks |
 | `pipeline-diagnostic.md` | Debugging data pipelines stage by stage |
 | `golden-exemplar.md` | Learning patterns from reference repos before building |
@@ -155,6 +175,8 @@ Guides load on-demand when triggered by specific situations. This keeps `CLAUDE.
 | `mcp-windows-debugging.md` | MCP servers on Windows that won't start or connect-but-sit-inert |
 | `windows-paths.md` | Constructing file paths with usernames and system directories on Windows |
 | `unavailable-source-fallback.md` | Archive-snapshot fallback (with mandatory validation) when a data host is down or throttling |
+| `remote-control-sessions.md` | Running desktop sessions from a phone: standing bridge, launch pads, spawn briefs, cleanup, restart recovery |
+| `dialectic-virality-frame.md` | Multi-agent product ideation: name adoption and first-visit bounce explicitly, or every lens drops it |
 | `claude-code-features.md` | Superseded — a cautionary stub about why hand-mirroring a fast-moving product's feature list fails |
 
 ### `examples/data-pipeline/` -- Working Example
@@ -163,23 +185,30 @@ A complete data enrichment pipeline demonstrating these patterns in action: step
 
 ## What Actually Gets Used
 
-This repo ships a `log-skill-usage.sh` hook precisely so this question has an answer. Four months of logged invocations (165 entries, April–July 2026) from the config this repo is a snapshot of:
+This repo ships a `log-skill-usage.sh` hook precisely so this question has an answer. The log from the config this repo is a snapshot of now holds 310 invocations over seven months (April–October 2026), split almost evenly across the two releases:
 
-| Tier | Skills | Share |
-|------|--------|-------|
-| The ritual | `/wrapup` (~70), `/dialectic-review` (~46) | ~70% of all invocations |
-| Regular | `/plan-task` (~10), `/prune`, `/comp` | ~10% |
-| Occasional | `/research`, `/finalize`, `/retro`, `/schedule`, and Claude Code built-ins | ~20% |
-| Rarely/never logged | `/bug-hunt`, `/red-team`, `/brainstorm`, `/premortem`, `/tradeoff`, `/socrates`, `/ship`, `/verify`, `/implement`, `/learn`, `/debug` | ~0% |
+| Skill | Apr–Jul 2026 (v3) | Jul 25–Oct 28 (v4) |
+|-------|------:|------:|
+| `/wrapup` | 75 | 8 |
+| `/dialectic-review` | 47 | 9 |
+| `/plan-task` | 10 | 0 |
+| `/verify` | 0 | 10 |
+| `/rsb` (new) | — | 26 |
+| Claude Code's built-in page and chart skills (`artifact-design`, `dataviz`) | — | 68 |
+| Everything else | 33 | 24 |
+| **Total** | **165** | **145** |
 
-Honest readings of that last row:
+In the first four months, `/wrapup` and `/dialectic-review` carried ~70% of all invocations, and the specialist one-shot skills (`/bug-hunt`, `/red-team`, `/brainstorm`, `/premortem`, `/tradeoff`, `/socrates`, `/ship`, `/implement`, `/learn`, `/debug`) were rarely or never logged. The last three months look different.
 
-1. **Session lifecycle + adversarial review are the workflow.** The two dominant skills are the ritual bookend (`/wrapup` compounds knowledge into COMP files every session) and the decision stress-tester. If you install only two skills, install those.
-2. **Wrappers get absorbed.** `/premortem`, `/tradeoff`, `/red-team`, `/brainstorm` are thin wrappers around `/dialectic-review` modes — usage flows to the parent skill. That's the design working, not failing.
-3. **Some zeros are real.** `/ship`, `/verify`, `/implement`, `/learn` genuinely get skipped: their behaviors partially migrated into CLAUDE.md doctrine (verify-before-done, operationalize-every-fix) that fires without explicit invocation. A skill whose content graduates into always-on doctrine is a success that looks like a failure in the log.
-4. **Measurement has holes.** The hook only logs invocations routed through the Skill tool; auto-triggered skills and some earlier months aren't captured. Treat the log as strong signal, not census.
+Readings:
 
-The meta-lesson we'd offer anyone building a big config: **instrument first, prune second.** We'd have guessed wrong about half of this table.
+1. **The ritual skills fell off, and that is real.** `/wrapup` went from 75 calls to 8 and `/dialectic-review` from 47 to 9. A check against the session transcripts still on disk (mid-August onward) agrees with the log, so this is not a logging gap. The likely cause is a change in session shape: work moved to short, single-task sessions spawned with a brief and steered from a phone (`/rsb`, 26 calls in its first ten days). Those sessions often end when the task ends. We don't yet know whether that is a loss. The doctrine still asks for both skills.
+2. **The output layer moved to built-ins.** Once "review surfaces are HTML pages" became doctrine, Claude Code's own page-design and chart skills fired on most deliverables: 68 of 145 calls.
+3. **Wrappers get absorbed.** `/premortem`, `/tradeoff`, `/red-team`, `/brainstorm` are thin wrappers around `/dialectic-review` modes. Usage flows to the parent skill. That's the design working, not failing.
+4. **Some zeros are real, and some come back.** `/ship`, `/implement`, `/learn` still go unused; their behaviours migrated into always-on CLAUDE.md doctrine. `/verify` went from 0 to 10, all in October, across six unrelated projects. We haven't traced why. A zero in one period is not a verdict.
+5. **Measurement has holes.** The hook logs only skills loaded through the Skill tool. Commands the user types directly never reach it: `/start` was typed 15 times in the transcripts since mid-August and logged once. Treat the log as strong signal, not census.
+
+The meta-lesson we'd offer anyone building a big config: **instrument first, prune second.** We'd have guessed wrong about half of the first table, and we didn't predict the shift in the second.
 
 ## The COMP System
 

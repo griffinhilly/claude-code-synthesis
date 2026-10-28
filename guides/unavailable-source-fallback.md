@@ -6,7 +6,8 @@ When a public data or document host is down, 403s, or IP-throttles, the **Waybac
 
 ## Procedure
 
-1. Try the live URL first. On error (403/404/504/throttle), query the Wayback Machine for snapshots of that exact URL (`http://web.archive.org/web/*/<url>` or the availability API).
+0. **On a 403 or an empty/JS shell, retry with a browser User-Agent before anything else** — many hosts block only the default fetcher and serve full content to `curl -A "Mozilla/5.0 ... Chrome/..."`. Then look for a JSON endpoint or embedded JSON in the page source. Procedure and known patterns: `~/.claude/guides/prefer-apis.md` → "Blocked or JavaScript-rendered pages". The host is often up; it just dislikes the client.
+1. If the live URL still fails (403/404/504/throttle), query the Wayback Machine for snapshots of that exact URL (`http://web.archive.org/web/*/<url>` or the availability API).
 2. Pull the closest-dated snapshot to the vintage you need.
 3. **Validation is mandatory — the fallback is not trusted until checked:**
    - **Time-series / tabular data:** if splicing an archived history with a recent partial pull, confirm the overlap seam agrees (byte- or value-identical on shared dates) AND spot-check ≥2 known historical values.

@@ -20,6 +20,7 @@ Entries grouped by intent. When the user says something matching the **Trigger p
 |---|---|---|
 | "start a session", "let's begin", `/start [project]` | `/start` | First skill of every session |
 | "wrap up", "end session", "let's stop here" | `/wrapup` | Last skill of every session |
+| "rsb", "read the spawn brief and go" | `/rsb` | First message of a session spawned with a `SPAWN-BRIEF.md`; see `guides/remote-control-sessions.md` |
 | "finalize", "close out the work" | `/finalize` | Lighter-weight than wrapup; for mid-session work-unit close |
 | "let's plan this", "before we build", "design first" | `/plan-task <task>` | Structured decomposition before implementation |
 | "review my plan", "stress-test the plan" | `/review-plan` | Plan-mode-specific review |
@@ -67,6 +68,7 @@ Entries grouped by intent. When the user says something matching the **Trigger p
 | "audit reachability", "find orphan skills/guides" | `/check-resolvable` | Runs `~/.claude/tools/check-resolvable.py`; reports orphans |
 | "what sessions did I run", "find that crashed session" | `/sessions` | Session table with IDs for resume/recovery |
 | "search past sessions for X" | `python ~/.claude/tools/session-search.py "X"` | Keyword search over transcripts |
+| "is that agent still running?", "check the subagents" | `python ~/.claude/tools/agent-liveness.py --project <slug>` | RUNNING / COMPLETE / STALLED from transcripts on disk; never trust "no notification yet" |
 | "skill usage report", "which skills actually get used" | `python ~/.claude/tools/skill-usage-report.py` | Reads the log-skill-usage.sh log |
 | "find stub/TODO/placeholder debt" | `python ~/.claude/tools/mock-finder.py <path>` | Deterministic code-debt scan |
 | "archive session transcripts" | `bash ~/.claude/tools/archive-transcripts.sh` | Run daily (cron/scheduled task) |
@@ -95,6 +97,8 @@ Claude Code's auto-memory directory lives at `~/.claude/projects/<cwd-hash>/memo
 | Cross-project gotcha | auto-memory MEMORY.md gotchas section | One-line gotcha |
 | Reference pointer (external system, dashboard) | auto-memory `reference_<topic>.md` + entry in MEMORY.md | `reference_agent_ecosystem.md` |
 | Workflow doctrine (always-on behavioral rule) | `~/.claude/CLAUDE.md` | Implementation Behavior bullet |
+| Safety/destructive rule | `~/.claude/SAFETY.md` | DB mutation rule |
+| Session state for compaction recovery | `~/claude-scratch/session-context.md` (append your own headed block; never rewrite the file) | "Where we are / what's next" |
 | Situational guide (triggered rule, not always-on) | `~/.claude/guides/<name>.md` + index entry in CLAUDE.md Situational Guides | `econometrics.md` |
 | Candidate rule (first sighting, pending promotion) | `~/.claude/candidate-rules.md` | Single-line entry with promotion criteria |
 | Custom skill | `~/.claude/skills/<name>/SKILL.md` + entry in this file's Section 1 | `~/.claude/skills/autoresearch/SKILL.md` |
@@ -162,6 +166,7 @@ This gate prevents single-occurrence rules from accumulating as permanent doctri
 ## Cross-references
 
 - `~/.claude/CLAUDE.md` — always-loaded behavioral doctrine
+- `~/.claude/SAFETY.md` — safety-critical rules (re-read before destructive ops)
 - `~/.claude/guides/skills-reference.md` — full skill catalog with descriptions
 - `~/.claude/candidate-rules.md` — pending-promotion ledger
 - Per-project COMP files (CLAUDE/ORIENT/MEMORY/PLAN)

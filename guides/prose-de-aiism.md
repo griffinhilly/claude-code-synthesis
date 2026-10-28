@@ -51,6 +51,16 @@ Compiled from a widely-shared social-media thread on AI writing tells (dozens of
 - **Tier 3 highlights:** "earns its place," "doing real work," "sharp observation," "you've identified something real," "you're absolutely right," "the flywheel," "[x] engine," "the brutal truth:", "that distinction matters," "land/landed" (as verb for ideas), starting sentences with "And,"/"But,".
 - **Diagnostic rule from the thread:** single occurrences are weak evidence; *combinations* in one passage are near-certain (e.g., "load-bearing" + "genuinely" + any hedge-pivot). Sweep for stacks, not singletons.
 
+## Three more structural tells
+
+These survived in a document that shipped WITHOUT this guide's final pass — the "run BEFORE showing the human" rule failed silently for the second time. The pass must be a named step in any content build-out, not a memory-dependent habit.
+
+**Evaluative-teaser headers.** A heading that pre-announces its own section's verdict: "The case for — and it's genuinely strong." Three tells stacked in seven words (debate-scaffold header + em-dash appendage + banned intensifier). Headers name the topic; the section earns the verdict. Related: generic debate-scaffold headers ("The case for," "The case against") in prose surfaces — replace with content-bearing headers ("The rival explanations," "Why the product math is hard").
+
+**Em-dash evaluative appendage.** "X — and it's Y" / "X — which is why Z": the writer's evaluation tacked onto a clause with an em-dash. This is the specific high-frequency abuse behind the existing two-per-paragraph cap. Prefer a separate sentence, or delete the evaluation and let the fact carry it.
+
+**Audience-flattery scope claims.** "bigger than most people realize," "more important than it looks," "most people miss this." Implies secret knowledge and a naive reader. State the fact; its size speaks for itself.
+
 ## Compliance narration and instruction echo (high priority)
 
 The deepest structural tell on informational pages: **the text narrates its own editorial rules instead of silently following them.** Real examples flagged on a public findings page — AFTER a full de-AI-ism pass, so treat these as what survives naive passes:

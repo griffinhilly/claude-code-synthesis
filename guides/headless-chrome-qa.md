@@ -34,3 +34,9 @@ Copy it into new projects rather than reinventing; it has no dependencies.
   separate headless instance never disturbs their session.
 - Static-export Next sites: preview with `npx serve out` (clean-URL rewrite),
   not `python -m http.server`.
+- `--screenshot` ignores a `#fragment` in the URL (it captures the top of the
+  page). To capture a deeper section, screenshot a copy of the file with the
+  sections above it hidden by CSS, or take a taller `--window-size`.
+- Under `--dump-dom`, a test hook wrapped in `window.addEventListener('load', …)`
+  may never fire; run the hook synchronously in a `<script>` appended before
+  `</body>` and write results into a `<pre id="testout">`.

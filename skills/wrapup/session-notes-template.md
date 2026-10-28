@@ -1,5 +1,7 @@
 # Session Notes Template
 
+**Step 0 — disk first, then your notes.** Before writing anything, run `git status` in the project and read the project's blocks in `~/claude-scratch/session-context.md`. Another session may have worked here since your last turn (in one real case, a second session had added six uncommitted files and a decisions file, and the wrapup's PLAN.md draft would have sent the next reader down a closed track). Your notes describe your session; the COMP files must describe the disk. Never commit another session's files.
+
 Before updating any files, take stock of what happened this session. Write these notes down — they'll be passed to the reviewer and used to update COMP files.
 
 Fill in each field:

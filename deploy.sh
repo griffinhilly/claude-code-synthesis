@@ -56,7 +56,7 @@ if [ "${SKIP_CLAUDE_MD:-0}" != "1" ]; then
     echo "  Installed CLAUDE.md"
 fi
 
-# ── 3b. Copy RESOLVER.md (routing table) and candidate-rules.md ──────────────
+# ── 3b. Copy RESOLVER.md, SAFETY.md, and candidate-rules.md ──────────────────
 
 if [ -f "$TARGET_DIR/RESOLVER.md" ]; then
     echo "  Keeping existing RESOLVER.md (repo version at $REPO_DIR/RESOLVER.md if you want to merge)"
@@ -64,6 +64,18 @@ else
     cp "$REPO_DIR/RESOLVER.md" "$TARGET_DIR/RESOLVER.md"
     echo "  Installed RESOLVER.md"
 fi
+
+# SAFETY.md: safety doctrine CLAUDE.md points to — never overwrite a local copy
+if [ -f "$TARGET_DIR/SAFETY.md" ]; then
+    echo "  Keeping existing SAFETY.md (repo version at $REPO_DIR/SAFETY.md if you want to merge)"
+else
+    cp "$REPO_DIR/SAFETY.md" "$TARGET_DIR/SAFETY.md"
+    echo "  Installed SAFETY.md"
+fi
+
+# Session-state scratch folder the PostCompact hook reads. It lives outside
+# ~/.claude/ because every write inside ~/.claude/ asks for permission.
+mkdir -p "$HOME/claude-scratch"
 
 # candidate-rules.md: the pending-promotion ledger RESOLVER.md and /wrapup
 # write to — must exist or first use hits a missing file
@@ -119,6 +131,9 @@ SETTINGS_FILE="$TARGET_DIR/settings.json"
 if [ -f "$SETTINGS_FILE" ]; then
     echo ""
     echo "MANUAL STEP REQUIRED: $SETTINGS_FILE already exists."
+    echo ""
+    echo "Add this allow rule so session-state writes don't prompt:"
+    echo '  "permissions": { "allow": ["Edit(~/claude-scratch/**)"] }'
     echo ""
     echo "Add the following hooks to your settings.json if not already present:"
     echo ""
@@ -223,7 +238,7 @@ else
     cat > "$SETTINGS_FILE" <<'JSONEOF'
 {
   "permissions": {
-    "allow": [],
+    "allow": ["Edit(~/claude-scratch/**)"],
     "deny": []
   },
   "hooks": {
@@ -351,6 +366,8 @@ echo "=== Deploy Complete ==="
 echo ""
 echo "Installed to $TARGET_DIR/:"
 [ "${SKIP_CLAUDE_MD:-0}" != "1" ] && echo "  - CLAUDE.md (operating model + instructions)"
+echo "  - RESOLVER.md, SAFETY.md, candidate-rules.md (routing, safety doctrine, rule ledger; existing copies kept)"
+echo "  - ~/claude-scratch/ (session-state file the PostCompact hook re-injects; kept outside ~/.claude/ to avoid permission prompts)"
 echo "  - skills/    ($(find "$REPO_DIR/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ') skills: /plan-task, /dialectic-review, /wrapup, ...)"
 echo "  - commands/  (7 workflow commands: /start, /prompt, /prune, ...)"
 echo "  - hooks/     (security hooks: secret blocking, destructive command warnings)"

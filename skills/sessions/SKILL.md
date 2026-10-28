@@ -43,14 +43,28 @@ the script itself has no version-specific dependencies.
 
 Render the output as a markdown table for the user (pass `--md`, or reformat the
 text output). Columns: last-active, turns, session ID, description. Point out
-that a session is resumed with `claude --resume <SESSION ID>`. If several
+that a session is resumed with `claude --resume <SESSION ID>` — this works from
+any directory, so the user does not need to `cd` anywhere first. If several
 sessions share an identical timestamp, note that — it usually means a crash or
 shutdown flushed them together.
 
 ## Notes / gotchas
-- Description falls back to the first real user prompt when a session has no
-  `aiTitle` yet (very new or aborted sessions).
-- Turn count = non-meta user prompts; `0` turns usually means an empty/aborted session.
+- **Namespaces are already unioned — do not "fix" this.** Transcripts are split
+  across one directory per launch folder (home, `~/Projects`, one per project, …).
+  `list_sessions.py` globs `projects/*/*.jsonl`, so the `*` covers every
+  namespace in one pass. Same for `session-search.py`, which iterates the same
+  root.
+- **Resume is not namespace-scoped; the picker is.** `claude --resume <ID>` with
+  an explicit ID resolves across namespaces and reattaches to the original
+  transcript wherever it lives. Only `--continue` and the bare `--resume` picker
+  are limited to the current directory — those are the cases where launch folder
+  matters.
+- Description fallback chain when a session has no `aiTitle` yet: first typed
+  prompt → first slash-command invocation (`<command-name>` + `<command-args>`,
+  skipping config commands like /effort and /model) → the `last-prompt` record.
+- Turn count = non-meta user prompts, including slash-command turns. `0` turns
+  genuinely means an empty session. (Earlier versions undercounted
+  slash-command-only sessions as 0 and labeled them "(no prompt)".)
 - Any secret-scanning hook that blocks shell `head`/`cat`/heredoc pipes over
   these JSONL files should be respected — always read them inside a Python script (as this tool
   does), never via a bash pipe.

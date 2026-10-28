@@ -30,6 +30,7 @@ Skills in this table have corresponding directories in `skills/`.
 | `/distill <draft> <final>` | Diff an agent draft against the user-corrected final; extract correction patterns; propose candidate rules. |
 | `/sessions` | List recent sessions (IDs, descriptions, turn counts) for resume/recovery of past or crashed sessions. |
 | `/check-resolvable` | Audit `~/.claude/` for orphaned skills/guides/tools unreachable from CLAUDE.md / RESOLVER.md. |
+| `/rsb [brief name]` | "Read SPAWN-BRIEF.md and execute." First message of a session another session spawned with a brief (typically opened from a phone). |
 | `/autoresearch <metric> <budget>` | Bounded autonomous optimization loop with rollback: numeric eval, wall-clock budget, git-branch commits, keep-or-revert. |
 
 ## Workflow Commands
