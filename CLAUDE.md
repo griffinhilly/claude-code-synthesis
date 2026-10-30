@@ -151,7 +151,7 @@ Such lines also signal an AI workflow, and readers find that jarring. Provenance
 
 ### Security Safeguards
 **See `~/.claude/SAFETY.md` for the full safety doctrine.** Re-read it before any destructive operation, external communication, or credential access. Summary of always-on rules:
-- **Database mutations**: UPDATE/DELETE require explicit confirmation with an affected-row summary; DROP/TRUNCATE/ALTER require a second confirmation plus a backup state check; large, production, or unreviewed-script INSERTs require confirmation.
+- **Database mutations** (INSERT/UPDATE/DELETE/DROP/ALTER/TRUNCATE) require explicit confirmation; UPDATE/DELETE/DROP/ALTER/TRUNCATE require a second confirmation with an affected-row summary and a backup state check.
 - **External communications** (git push, gh writes, messages, PR comments, third-party uploads) require explicit approval; show the recipient, diff or command before executing.
 - **Credentials** are never hardcoded; reference them from config files. Hook-blocked reads must not be bypassed.
 - **Destructive shell/git** (rm -rf, hard reset, force-push, --no-verify) requires explicit approval, and investigation of unexpected state before destroying it. Never force-push to main/master.

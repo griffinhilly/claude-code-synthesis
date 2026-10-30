@@ -58,7 +58,7 @@ If a hook fires unexpectedly, **investigate the underlying request** — don't r
 
 ## When SAFETY.md and CLAUDE.md conflict
 
-This file takes precedence. If a CLAUDE.md rule appears to authorize something this file forbids, surface the conflict and stop.
+This file takes precedence. If a CLAUDE.md rule appears to authorize something this file forbids, surface the conflict and stop. Where the CLAUDE.md summary is stricter than this file (e.g. confirmation for every INSERT, a second confirmation for UPDATE/DELETE), the stricter rule applies.
 
 ---
 

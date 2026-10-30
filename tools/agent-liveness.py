@@ -64,8 +64,11 @@ def classify(recs, idle, stall_secs):
 
     last = recs[-1]
     kinds = [b.get("type") for b in blocks(last)]
-    if last.get("type") == "assistant" and "tool_use" not in kinds:
-        return "COMPLETE", "ended on a final assistant turn"
+    stop = (last.get("message") or {}).get("stop_reason")
+    # Transcripts write one record per content block (thinking, text, tool_use),
+    # so only a text record that ends the turn proves the agent finished.
+    if last.get("type") == "assistant" and "text" in kinds and stop in ("end_turn", "stop_sequence"):
+        return "COMPLETE", "final assistant text, turn ended"
     if idle < stall_secs:
         return "RUNNING", "writing recently"
 
@@ -76,7 +79,9 @@ def classify(recs, idle, stall_secs):
     if "tool_result" in kinds:
         return "STALLED", "tool result received, no assistant turn followed"
 
-    return "STALLED", f"ended on a '{last.get('type')}' record with no reply"
+    if last.get("type") == "assistant" and "text" in kinds:
+        return "COMPLETE", "final assistant text"
+    return "STALLED", f"ended on a '{last.get('type')}' record ({', '.join(filter(None, kinds)) or 'no content'}) with no reply"
 
 
 def tool_calls(recs):

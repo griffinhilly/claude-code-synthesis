@@ -29,3 +29,4 @@
 {"input": "format this prompt and send it", "expected_skill": "prompt", "category": "tooling"}
 {"input": "format this prompt but don't send", "expected_skill": "prompt-only", "category": "tooling"}
 {"input": "improve this prompt before I send it", "expected_skill": "prompt-refine", "category": "tooling"}
+{"input": "rsb", "expected_skill": "rsb", "category": "lifecycle"}
